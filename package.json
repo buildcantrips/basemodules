@@ -1,0 +1,66 @@
+{
+  "name": "@cantrips/basemodules",
+  "version": "0.12.0",
+  "description": "Cantrips-basemodules for more descriptive builds",
+  "main": "./lib",
+  "repository": "https://github.com/buildcantrips/basemodules.git",
+  "bin": {
+    "cantrips": "./lib/app.js"
+  },
+  "author": "csaba.makara@gmail.com",
+  "license": "MIT",
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}",
+      "!src/app.js",
+      "!**/node_modules/**",
+      "!**/vendor/**"
+    ],
+    "coverageDirectory": ".coverage",
+    "coverageThreshold": {
+      "global": {
+        "statements": 85
+      }
+    },
+    "reporters": [
+      "jest-spec-reporter"
+    ],
+    "verbose": false
+  },
+  "dependencies": {
+    "@cantrips/core": "0.12.0"
+  },
+  "scripts": {
+    "test": "jest --runInBand src",
+    "lint": "eslint src",
+    "babel:build": "babel src -d lib --ignore node_modules,src/modules",
+    "babel:watch": "babel src -d lib -w --ignore node_modules,src/modules"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.0.0",
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/runtime": "7.1.2",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.4.2",
+    "babel-plugin-dynamic-import-node-babel-7": "^2.0.7",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^5.8.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-chai-friendly": "^0.4.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^23.6.0",
+    "jest-spec-reporter": "^1.0.5",
+    "nyc": "^13.1.0",
+    "tmp": "0.0.33"
+  }
+}
