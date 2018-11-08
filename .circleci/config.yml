@@ -2,54 +2,56 @@ version: 2
 jobs:
   buildAndTest:
     docker:
-        - image: circleci/node
+      - image: circleci/node
     steps:
       - setup_remote_docker
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          name: Install
-          command: npm install
+          name: Install yarn
+          command: npm install yarn
+      - run:
+          name: Install dependencies
+          command: yarn
       - run:
           name: Lint
-          command: npm run lint
+          command: yarn run lint
       - run:
           name: Babel build
-          command: npm run babel:build
+          command: yarn run babel:build
       - run:
           name: Test
-          command: npm test
-      - run:
-          name: Docker build
-          command: docker build --no-cache .
+          command: yarn test
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - node_modules
   publish:
     docker:
-       - image: circleci/node
+      - image: circleci/node
     steps:
       - setup_remote_docker
       - checkout
       - run:
-          name: Npm install
-          command: npm install
+          name: Install yarn
+          command: npm install yarn
+      - run:
+          name: Install dependencies
+          command: yarn
       - run:
           name: Babel build
-          command: npm run babel:build
+          command: yarn run babel:build
       - run:
           name: Install Cantrips
-          command: sudo npm i -g cantrips@"<=1.0.0"
-      - run: 
+          command: sudo yarn global add cantrips@"<=1.0.0"
+      - run:
           name: Npm credentials
           command: cantrips npm credentials
       - run:
           name: Npm publish
-          command: npm publish
+          command: yarn publish --access public
 
-  
 workflows:
   version: 2
   buildAndPublish:
@@ -68,4 +70,3 @@ workflows:
             branches:
               ignore: /.*/
           context: org-global
-
