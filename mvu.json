@@ -1,9 +1,9 @@
 {
-  "currentVersion": "0.12.0",
+  "currentVersion": "0.12.1",
   "createCommit": true,
   "createTag": true,
-  "tagPattern": "release-{newVersion}",
   "commitMessage": "Bump version: {currentVersion} → {newVersion}",
+  "tagPattern": "release-{newVersion}",
   "technologies": {
     "Yarn": {
       "configFiles": {
