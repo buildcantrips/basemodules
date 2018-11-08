@@ -12,7 +12,7 @@ describe("createCredentials", () => {
   const authToken = "authToken";
   beforeAll(() => {
     process.env.NPM_AUTH_TOKEN = authToken;
-    jest.setTimeout(20000);
+    jest.setTimeout(40000);
   });
 
   afterAll(() => {
