@@ -20,7 +20,7 @@
     "coverageDirectory": ".coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 85
+        "statements": 70
       }
     },
     "reporters": [

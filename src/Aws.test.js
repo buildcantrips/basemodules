@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import { Aws } from "./aws";
+import { Aws } from "./Aws";
 import tmp from "tmp";
 import fs from "fs";
 import path from "path";
