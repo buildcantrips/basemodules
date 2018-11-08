@@ -1,4 +1,4 @@
-import { Logger, ParameterProvider, Utils } from "cantrips-core";
+import { Logger, ParameterProvider, Utils } from "@cantrips/core";
 
 class Docker {
   constructor(location, commandRunner = undefined) {

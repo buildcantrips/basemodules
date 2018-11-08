@@ -1,6 +1,6 @@
 "use strict";
 
-import { ParameterProvider, Logger, ContainerProvider } from "cantrips-core";
+import { ParameterProvider, Logger, ContainerProvider } from "@cantrips/core";
 
 class ElasticBeanstalk {
   constructor() {

@@ -677,6 +677,17 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@cantrips/core@^0.13.5":
+  version "0.13.5"
+  resolved "https://registry.yarnpkg.com/@cantrips/core/-/core-0.13.5.tgz#4328b15b51680b8161ca6442e409e3b5ed6a04c0"
+  integrity sha512-otmeqIiVnza17J5b4a1tvliWHFAECXW/JnsCYEPpH/f0WFDesQFAtcyzbUHs9wPJTn6bduxP4AWEzb0YjMqDrA==
+  dependencies:
+    ora "^3.0.0"
+    requirejs "^2.3.6"
+    simple-git "^1.106.0"
+    winston "^2.4.0"
+    yarn "^1.12.3"
+
 abab@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/abab/-/abab-2.0.0.tgz#aba0ab4c5eee2d4c79d3487d85450fb2376ebb0f"
@@ -1269,14 +1280,6 @@ caniuse-lite@^1.0.30000899:
   version "1.0.30000905"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000905.tgz#8f731ecf5b8553c7154a691c3df3a635a1a3fda5"
   integrity sha512-cR6ICguvhRrkAjFfBoe54vJQMVOEz7vFmqrV6oor1a7GRg6DdswI40lkiV/QQvAMb4txzTkjSaLaJaiAtSuQzA==
-
-"cantrips-core@file:../cantrips-core":
-  version "0.1.1"
-  dependencies:
-    ora "^3.0.0"
-    requirejs "^2.3.6"
-    simple-git "^1.106.0"
-    winston "^2.4.0"
 
 capture-exit@^1.2.0:
   version "1.2.0"
@@ -5627,3 +5630,8 @@ yargs@11.1.0, yargs@^11.0.0:
     which-module "^2.0.0"
     y18n "^3.2.1"
     yargs-parser "^9.0.2"
+
+yarn@^1.12.3:
+  version "1.12.3"
+  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.12.3.tgz#fb4599bf1f8da01552bcc7e1571dfd4e53788203"
+  integrity sha512-8f5rWNDvkhAmCxmn8C0LsNWMxTYVk4VGKiq0sIB6HGZjaZTHsGIH87SUmVDUEd2Wk54bqKoUlbVWgQFCQhRkVw==

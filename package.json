@@ -29,7 +29,7 @@
     "verbose": false
   },
   "dependencies": {
-    "@cantrips/core": "^0.13.2"
+    "@cantrips/core": "^0.13.5"
   },
   "scripts": {
     "test": "jest --runInBand src",

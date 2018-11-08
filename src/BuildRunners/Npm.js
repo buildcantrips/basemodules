@@ -2,7 +2,7 @@
 
 import fs from "fs";
 import path from "path";
-import { Logger, ContainerProvider } from "cantrips-core";
+import { Logger, ContainerProvider } from "@cantrips/core";
 
 class Npm {
   constructor({ registryUrl, authToken, userFolder }) {

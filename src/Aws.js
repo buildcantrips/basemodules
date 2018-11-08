@@ -2,7 +2,7 @@
 
 import fs from "fs";
 import path from "path";
-import { Logger } from "cantrips-core";
+import { Logger } from "@cantrips/core";
 
 class Aws {
   constructor({ accessKeyId, secretAccessKey, userFolder }) {

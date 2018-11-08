@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import { Docker } from "./Docker";
-import { Utils } from "cantrips-core";
+import { Utils } from "@cantrips/core";
 
 import path from "path";
 import { expect } from "chai";
