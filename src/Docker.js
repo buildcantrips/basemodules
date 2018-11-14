@@ -25,7 +25,7 @@ class Docker {
       imageName ||
       (await Utils.normalizeString(await this.computeDefaultImageName()));
     target =
-      target || (await this.parameterProvider.getParameter("DockerTarget"));
+      target || (await this.parameterProvider.getParameter("DockerRegistry"));
     tags = tags || (await this.computeDefaultTags());
 
     if (!Utils.isNormalizedString(imageName)) {

@@ -38,13 +38,13 @@ describe("docker", async () => {
   var alreadyPresentDockerImage;
   var dockerHandler;
   var validDockerImageName = "my-test-org-my-test-image";
-  var validDockerTarget = "validDockerTarget";
+  var validDockerRegistry = "validDockerRegistry";
   beforeAll(() => {
     process.env.CIRCLECI = "CIRCLECI";
     process.env.CIRCLE_BRANCH = "validBranchName";
     process.env.CIRCLE_PROJECT_USERNAME = "validUser";
     process.env.CIRCLE_PROJECT_REPONAME = "validRepoName";
-    process.env.DOCKER_TARGET = validDockerTarget;
+    process.env.DOCKER_REGISTRY = validDockerRegistry;
     process.env.CIRCLE_TAG = "";
     process.env.CIRCLE_BRANCH = "work/myBranch";
     process.env.DOCKER_USERNAME = "validDockerUserFromEnv";
@@ -156,7 +156,7 @@ describe("docker", async () => {
       await dockerHandler.build();
       await dockerHandler.push();
       expect(results).to.include(
-        `docker push ${validDockerTarget}/validuser-validreponame:work-mybranch`
+        `docker push ${validDockerRegistry}/validuser-validreponame:work-mybranch`
       );
     });
 
@@ -164,12 +164,12 @@ describe("docker", async () => {
       await dockerHandler.build();
       await dockerHandler.push(
         validDockerImageName,
-        validDockerTarget,
+        validDockerRegistry,
         undefined,
         true
       );
       expect(results).to.include(
-        `docker push ${validDockerTarget}/${validDockerImageName}:latest`
+        `docker push ${validDockerRegistry}/${validDockerImageName}:latest`
       );
     });
 
@@ -177,16 +177,16 @@ describe("docker", async () => {
       await dockerHandler.build();
       await dockerHandler.push(
         validDockerImageName,
-        validDockerTarget,
+        validDockerRegistry,
         ["a", "b"],
         true
       );
       expect(results)
         .to.include(
-          `docker push ${validDockerTarget}/${validDockerImageName}:a`
+          `docker push ${validDockerRegistry}/${validDockerImageName}:a`
         )
         .and.to.include(
-          `docker push ${validDockerTarget}/${validDockerImageName}:b`
+          `docker push ${validDockerRegistry}/${validDockerImageName}:b`
         );
     });
   });

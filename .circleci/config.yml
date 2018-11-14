@@ -43,11 +43,9 @@ jobs:
           name: Babel build
           command: yarn run babel:build
       - run:
-          name: Install Cantrips
-          command: sudo yarn global add cantrips@"<=1.0.0"
-      - run:
-          name: Npm credentials
-          command: cantrips npm credentials
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ./.npmrc
+
       - run:
           name: Npm publish
           command: yarn publish --access public

@@ -2,11 +2,7 @@
   "name": "@cantrips/basemodules",
   "version": "0.12.1",
   "description": "Cantrips-basemodules for more descriptive builds",
-  "main": "./lib",
   "repository": "https://github.com/buildcantrips/basemodules.git",
-  "bin": {
-    "cantrips": "./lib/app.js"
-  },
   "author": "csaba.makara@gmail.com",
   "license": "MIT",
   "jest": {
@@ -29,7 +25,7 @@
     "verbose": false
   },
   "dependencies": {
-    "@cantrips/core": "^0.13.5"
+    "@cantrips/core": "^0.13.8"
   },
   "scripts": {
     "test": "jest --runInBand src",
