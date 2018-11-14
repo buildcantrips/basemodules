@@ -1,6 +1,6 @@
 {
   "name": "@cantrips/basemodules",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "Cantrips-basemodules for more descriptive builds",
   "repository": "https://github.com/buildcantrips/basemodules.git",
   "author": "csaba.makara@gmail.com",
