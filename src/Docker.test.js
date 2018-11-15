@@ -44,6 +44,7 @@ describe("docker", async () => {
     process.env.CIRCLE_BRANCH = "validBranchName";
     process.env.CIRCLE_PROJECT_USERNAME = "validUser";
     process.env.CIRCLE_PROJECT_REPONAME = "validRepoName";
+    process.env.CIRCLE_SHA1 = "1234567890"
     process.env.DOCKER_REGISTRY = validDockerRegistry;
     process.env.CIRCLE_TAG = "";
     process.env.CIRCLE_BRANCH = "work/myBranch";
@@ -89,7 +90,7 @@ describe("docker", async () => {
   describe("computeDefaultTags", () => {
     it("gives back normalized branch name in build mode", async () => {
       expect(await dockerHandler.computeDefaultTags()).to.include(
-        "work-mybranch"
+        "12345678"
       );
     });
     it("gives back release version in release mode", async () => {
@@ -156,7 +157,7 @@ describe("docker", async () => {
       await dockerHandler.build();
       await dockerHandler.push();
       expect(results).to.include(
-        `docker push ${validDockerRegistry}/validuser-validreponame:work-mybranch`
+        `docker push ${validDockerRegistry}/validuser-validreponame:12345678`
       );
     });
 
