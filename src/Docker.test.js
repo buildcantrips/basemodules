@@ -166,7 +166,7 @@ describe("docker", async () => {
       await dockerHandler.push({
         imageName: validDockerImageName,
         registryUrl: validDockerRegistry,
-        latest: "true"
+        latest: true
       }
 
       );
@@ -181,7 +181,7 @@ describe("docker", async () => {
         imageName: validDockerImageName,
         registryUrl: validDockerRegistry,
         tags: "a,b",
-        latest: "true"
+        latest: true
       });
       expect(results)
         .to.include(
