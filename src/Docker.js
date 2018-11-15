@@ -28,7 +28,7 @@ class Docker {
       registryUrl ||
       (await this.parameterProvider.getParameter("DockerRegistry"));
     tags = tags && tags.split(",") || (await this.computeDefaultTags());
-    latest = latest === "true";
+    latest = latest === true;
 
     if (!Utils.isNormalizedString(imageName)) {
       Logger.error(`Image name ${imageName} is not a valid docker image name.`);
