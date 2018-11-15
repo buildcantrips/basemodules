@@ -1,13 +1,13 @@
 import { Logger, ParameterProvider, Utils } from "@cantrips/core";
 
 class Docker {
-  constructor(location, commandRunner = undefined) {
+  constructor(location, commandRunner) {
     this.location = location;
     this.runCommand = commandRunner || Utils.runCommand;
     this.parameterProvider = new ParameterProvider();
   }
 
-  async build({imageName = undefined, noCache = false} = {}) {
+  async build({imageName, noCache = false} = {}) {
     imageName = imageName || (await this.computeDefaultImageName());
     return this.runCommand(
       `docker build ${noCache ? " --no-cache" : ""} -t ${imageName} .`,
@@ -16,9 +16,9 @@ class Docker {
   }
 
   async push({
-    imageName = undefined,
-    registryUrl = undefined,
-    tags = undefined,
+    imageName,
+    registryUrl,
+    tags,
     latest = false
   }= {}) {
     imageName =
@@ -53,25 +53,25 @@ class Docker {
       await this.tag(fullPushTargetPath, "latest", tag);
       await this.runCommand(
         `docker push ${fullPushTargetPath}:${tag}`,
-        `Pushing docker image ${fullPushTargetPath}:${tag}`
+        `Pushing image ${fullPushTargetPath}:${tag}`
       );
     }
   }
 
   async tag(imageToTag, oldTag, newTag) {
-    Logger.info(`Tagging image ${imageToTag} with tag ${newTag}`);
     return this.runCommand(
       `docker tag ${imageToTag}:${oldTag} ${imageToTag}:${newTag}`,
       `Tagging image ${imageToTag}:${newTag}`
     );
   }
 
-  async login({username = undefined, password = undefined} = {}) {
+  async login({username, password, registryUrl} = {}) {
     username = username || process.env.DOCKER_USERNAME;
     password = password || process.env.DOCKER_PASSWORD;
+    registryUrl = registryUrl || process.env.DOCKER_REGISTRY;
     return this.runCommand(
-      `docker login -u ${username} -p ${password}`,
-      `Logging into docker`
+      `docker login -u ${username} -p ${password} ${registryUrl}`,
+      `Logging into ${registryUrl}`
     );
   }
 
