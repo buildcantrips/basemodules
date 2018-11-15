@@ -80,7 +80,7 @@ class Docker {
       ? [this.parameterProvider.getParameter("ReleaseVersion")]
       : [
           Utils.normalizeString(
-            await this.parameterProvider.getParameter("BranchName")
+            await this.parameterProvider.getParameter("ShortHash")
           )
         ];
   }
