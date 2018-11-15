@@ -7,7 +7,7 @@ class Docker {
     this.parameterProvider = new ParameterProvider();
   }
 
-  async build({imageName = undefined, noCache = false}) {
+  async build({imageName = undefined, noCache = false} = {}) {
     imageName = imageName || (await this.computeDefaultImageName());
     return this.runCommand(
       `docker build ${noCache ? " --no-cache" : ""} -t ${imageName} .`,
@@ -20,14 +20,14 @@ class Docker {
     registryUrl = undefined,
     tags = undefined,
     latest = false
-  }) {
+  }= {}) {
     imageName =
       imageName ||
       (await Utils.normalizeString(await this.computeDefaultImageName()));
     registryUrl =
       registryUrl ||
       (await this.parameterProvider.getParameter("DockerRegistry"));
-    tags = tags.split(",") || (await this.computeDefaultTags());
+    tags = tags && tags.split(",") || (await this.computeDefaultTags());
     latest = latest === "true";
 
     if (!Utils.isNormalizedString(imageName)) {
@@ -46,6 +46,7 @@ class Docker {
       );
     }
     for (const tag of tags) {
+
       if (!Utils.isNormalizedString(tag)) {
         Logger.error(`Tag ${tag} is not a valid docker image name.`);
       }
@@ -65,7 +66,7 @@ class Docker {
     );
   }
 
-  async login({username = undefined, password = undefined}) {
+  async login({username = undefined, password = undefined} = {}) {
     username = username || process.env.DOCKER_USERNAME;
     password = password || process.env.DOCKER_PASSWORD;
     return this.runCommand(

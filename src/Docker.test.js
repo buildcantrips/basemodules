@@ -71,7 +71,7 @@ describe("docker", async () => {
 
   describe("build", () => {
     it("docker images can be built with image name parameter", async () => {
-      await dockerHandler.build(validDockerImageName);
+      await dockerHandler.build({imageName: validDockerImageName});
       expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`);
     });
 
@@ -82,7 +82,7 @@ describe("docker", async () => {
 
     it("docker images can be built with no caching", async () => {
       var dockerHandler = new Docker(tempDir, command => command);
-      var result = await dockerHandler.build(null, true);
+      var result = await dockerHandler.build({imageName: null, noCache: true});
       expect(result).to.contain("--no-cache");
     });
   });
@@ -113,7 +113,7 @@ describe("docker", async () => {
     var validPassword = "validPassword";
     it("uses given username and password to authenticate", async () => {
       var dockerHandler = new Docker(tempDir, command => command);
-      var result = await dockerHandler.login(validUser, validPassword);
+      var result = await dockerHandler.login({username: validUser, password: validPassword});
       expect(result).to.contain(`-u ${validUser} -p ${validPassword}`);
     });
 
@@ -130,7 +130,7 @@ describe("docker", async () => {
     it("tags an image with new tag...", async () => {
       var imageName = "image-to-tag";
       var newTag = "new-tag";
-      await dockerHandler.build(imageName);
+      await dockerHandler.build({imageName});
       await dockerHandler.tag(imageName, "latest", newTag);
       expect(getDockerImageList()).to.contain(`${imageName}:${newTag}`);
     });
@@ -162,11 +162,12 @@ describe("docker", async () => {
 
     it("pushes latest as well if it is set", async () => {
       await dockerHandler.build();
-      await dockerHandler.push(
-        validDockerImageName,
-        validDockerRegistry,
-        undefined,
-        true
+      await dockerHandler.push({
+        imageName: validDockerImageName,
+        registryUrl: validDockerRegistry,
+        latest: "true"
+      }
+
       );
       expect(results).to.include(
         `docker push ${validDockerRegistry}/${validDockerImageName}:latest`
@@ -175,12 +176,12 @@ describe("docker", async () => {
 
     it("pushes multiple times on multiple tags", async () => {
       await dockerHandler.build();
-      await dockerHandler.push(
-        validDockerImageName,
-        validDockerRegistry,
-        ["a", "b"],
-        true
-      );
+      await dockerHandler.push({
+        imageName: validDockerImageName,
+        registryUrl: validDockerRegistry,
+        tags: "a,b",
+        latest: "true"
+      });
       expect(results)
         .to.include(
           `docker push ${validDockerRegistry}/${validDockerImageName}:a`
