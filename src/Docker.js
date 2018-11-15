@@ -7,7 +7,7 @@ class Docker {
     this.parameterProvider = new ParameterProvider();
   }
 
-  async build(imageName = undefined, noCache = true) {
+  async build({imageName = undefined, noCache = false}) {
     imageName = imageName || (await this.computeDefaultImageName());
     return this.runCommand(
       `docker build ${noCache ? " --no-cache" : ""} -t ${imageName} .`,
@@ -15,24 +15,28 @@ class Docker {
     );
   }
 
-  async push(
+  async push({
     imageName = undefined,
-    target = undefined,
+    registryUrl = undefined,
     tags = undefined,
     latest = false
-  ) {
+  }) {
     imageName =
       imageName ||
       (await Utils.normalizeString(await this.computeDefaultImageName()));
-    target =
-      target || (await this.parameterProvider.getParameter("DockerRegistry"));
-    tags = tags || (await this.computeDefaultTags());
+    registryUrl =
+      registryUrl ||
+      (await this.parameterProvider.getParameter("DockerRegistry"));
+    tags = tags.split(",") || (await this.computeDefaultTags());
+    latest = latest === "true";
 
     if (!Utils.isNormalizedString(imageName)) {
       Logger.error(`Image name ${imageName} is not a valid docker image name.`);
     }
 
-    var fullPushTargetPath = target ? `${target}/${imageName}` : imageName;
+    var fullPushTargetPath = registryUrl
+      ? `${registryUrl}/${imageName}`
+      : imageName;
 
     if (latest) {
       Logger.debug("Pushing latest image");
@@ -61,7 +65,7 @@ class Docker {
     );
   }
 
-  async login(username = undefined, password = undefined) {
+  async login({username = undefined, password = undefined}) {
     username = username || process.env.DOCKER_USERNAME;
     password = password || process.env.DOCKER_PASSWORD;
     return this.runCommand(
@@ -88,7 +92,55 @@ class Docker {
 }
 
 module.exports = {
-  exposed: ["login", "build", "push"],
+  exposed: {
+    build: {
+      parameters: [
+        {
+          name: "imageName",
+          help: "The name of the result image"
+        },
+        {
+          name: "noCache",
+          help: "Using noCache option",
+          flag: true
+        }
+      ]
+    },
+    login: {
+      name: "login",
+      parameters: [
+        {
+          name: "username",
+          help: "Docker registry user name"
+        },
+        {
+          name: "password",
+          help: "Docker registry user password"
+        }
+      ]
+    },
+    push: {
+      parameters: [
+        {
+          name: "imageName",
+          help: "If active, do not push the image to remote"
+        },
+        {
+          name: "registryUrl",
+          help: "The target Docker Registry url"
+        },
+        {
+          name: "tags",
+          help: "Coma separated list of tags to push to"
+        },
+        {
+          name: "latest",
+          help: "Should a latest tag be pushed",
+          flag: true
+        }
+      ]
+    }
+  },
   meta: {
     name: "docker",
     parameters: [

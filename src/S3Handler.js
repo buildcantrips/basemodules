@@ -1,5 +1,3 @@
-"use strict";
-
 import { ContainerProvider, Logger } from "@cantrips/core";
 
 class S3Handler {
