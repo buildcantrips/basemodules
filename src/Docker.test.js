@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import { Docker } from "./Docker";
-import { Utils } from "@cantrips/core";
+import { FileSystemUtils } from "@cantrips/core";
 
 import path from "path";
 import { expect } from "chai";
@@ -13,7 +13,7 @@ let tempDir = path.join(osTmpdir(), "cantrips_test_dir");
 
 function recreateGitRepository() {
   if (fs.existsSync(tempDir)) {
-    Utils.deleteFolderRecursive(tempDir);
+    FileSystemUtils.deleteFolderRecursive(tempDir);
   }
   fs.mkdirSync(tempDir);
   childProcess.execSync(`cd ${tempDir} &&
@@ -56,7 +56,7 @@ describe("docker", async () => {
   });
   afterAll(() => {
     if (fs.existsSync(tempDir)) {
-      Utils.deleteFolderRecursive(tempDir);
+      FileSystemUtils.deleteFolderRecursive(tempDir);
     }
     var currentDockerImages = snapShotDockerImages();
     var imagesToRemove = currentDockerImages

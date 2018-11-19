@@ -1,9 +1,9 @@
-import { Logger, ParameterProvider, Utils } from "@cantrips/core";
+import { Logger, ParameterProvider, ProcessUtils, StringUtils } from "@cantrips/core"
 
 class Docker {
   constructor(location, commandRunner) {
     this.location = location;
-    this.runCommand = commandRunner || Utils.runCommand;
+    this.runCommand = commandRunner || ProcessUtils.runCommand;
     this.parameterProvider = new ParameterProvider();
   }
 
@@ -23,14 +23,14 @@ class Docker {
   }= {}) {
     imageName =
       imageName ||
-      (await Utils.normalizeString(await this.computeDefaultImageName()));
+      (await StringUtils.normalizeString(await this.computeDefaultImageName()));
     registryUrl =
       registryUrl ||
       (await this.parameterProvider.getParameter("DockerRegistry"));
     tags = tags && tags.split(",") || (await this.computeDefaultTags());
     latest = latest === true;
 
-    if (!Utils.isNormalizedString(imageName)) {
+    if (!StringUtils.isNormalizedString(imageName)) {
       Logger.error(`Image name ${imageName} is not a valid docker image name.`);
     }
 
@@ -38,16 +38,18 @@ class Docker {
       ? `${registryUrl}/${imageName}`
       : imageName;
 
+    await this.tag(imageName, "latest", "latest")
+
     if (latest) {
       Logger.debug("Pushing latest image");
+
       await this.runCommand(
         `docker push ${fullPushTargetPath}:latest`,
         `Pushing docker image ${fullPushTargetPath}:latest`
       );
     }
     for (const tag of tags) {
-
-      if (!Utils.isNormalizedString(tag)) {
+      if (!StringUtils.isNormalizedString(tag)) {
         Logger.error(`Tag ${tag} is not a valid docker image name.`);
       }
       await this.tag(fullPushTargetPath, "latest", tag);
@@ -58,9 +60,9 @@ class Docker {
     }
   }
 
-  async tag(imageToTag, oldTag, newTag) {
+  async tag(imageToTag, oldTag, newTag, newImageName) {
     return this.runCommand(
-      `docker tag ${imageToTag}:${oldTag} ${imageToTag}:${newTag}`,
+      `docker tag ${imageToTag}:${oldTag} ${newImageName || imageToTag}:${newTag}`,
       `Tagging image ${imageToTag}:${newTag}`
     );
   }
@@ -79,14 +81,14 @@ class Docker {
     return (await this.parameterProvider.getParameter("IsRelease"))
       ? [this.parameterProvider.getParameter("ReleaseVersion")]
       : [
-          Utils.normalizeString(
+        StringUtils.normalizeString(
             await this.parameterProvider.getParameter("ShortHash")
           )
         ];
   }
 
   async computeDefaultImageName() {
-    return Utils.normalizeString(
+    return StringUtils.normalizeString(
       await this.parameterProvider.getParameter("ProjectName")
     );
   }
