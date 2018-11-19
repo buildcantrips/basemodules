@@ -61,9 +61,10 @@ class Docker {
   }
 
   async tag(imageToTag, oldTag, newTag, newImageName) {
+    newImageName = newImageName || imageToTag
     return this.runCommand(
-      `docker tag ${imageToTag}:${oldTag} ${newImageName || imageToTag}:${newTag}`,
-      `Tagging image ${imageToTag}:${newTag}`
+      `docker tag ${imageToTag}:${oldTag} ${newImageName}:${newTag}`,
+      `Tagging image ${imageToTag}:${oldTag} as ${newImageName}:${newTag}`
     );
   }
 
