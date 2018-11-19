@@ -1,53 +1,53 @@
-import fs from "fs";
-import path from "path";
-import { Logger, ContainerProvider } from "@cantrips/core";
+import fs from "fs"
+import path from "path"
+import { Logger, ContainerProvider } from "@cantrips/core"
 
 class Npm {
   constructor({ registryUrl, authToken, userFolder }) {
-    Logger.info(authToken);
-    this.authToken = authToken || process.env.NPM_AUTH_TOKEN;
+    Logger.info(authToken)
+    this.authToken = authToken || process.env.NPM_AUTH_TOKEN
     if (!this.authToken) {
-      throw new Error("NPM_AUTH_TOKEN is mandatory!");
+      throw new Error("NPM_AUTH_TOKEN is mandatory!")
     }
     this.registryUrl =
-      registryUrl || process.env.NPM_REGISTRY_URL || "registry.npmjs.org/";
-    this.userFolder = userFolder || process.env.HOME;
+      registryUrl || process.env.NPM_REGISTRY_URL || "registry.npmjs.org/"
+    this.userFolder = userFolder || process.env.HOME
 
-    this.imageUrl = "node";
-    this.container = undefined;
+    this.imageUrl = "node"
+    this.container = undefined
   }
 
   async init() {
-    this.container = await ContainerProvider(this.imageUrl);
+    this.container = await ContainerProvider(this.imageUrl)
   }
 
   async createCredentials() {
-    Logger.info(`Creating Npm credential file...`);
+    Logger.info(`Creating Npm credential file...`)
 
     if (!fs.existsSync(this.userFolder)) {
-      fs.mkdirSync(this.userFolder);
+      fs.mkdirSync(this.userFolder)
     }
 
-    const config = `//${this.registryUrl}:_authToken=${this.authToken}\n`;
-    const configFilePath = path.join(this.userFolder, ".npmrc");
+    const config = `//${this.registryUrl}:_authToken=${this.authToken}\n`
+    const configFilePath = path.join(this.userFolder, ".npmrc")
     if (fs.existsSync(configFilePath)) {
       Logger.warn(
         `Backing up existing npmrc ${configFilePath} as ${configFilePath}_old`
-      );
-      fs.renameSync(configFilePath, `${configFilePath}_old`);
+      )
+      fs.renameSync(configFilePath, `${configFilePath}_old`)
     }
 
-    fs.writeFileSync(configFilePath, config, { mode: "600" });
+    fs.writeFileSync(configFilePath, config, { mode: "600" })
 
-    Logger.info(`Npm credential file created: ${configFilePath}`);
+    Logger.info(`Npm credential file created: ${configFilePath}`)
   }
 }
 
-const wrapper = async options => {
-  const handler = new Npm(options);
-  await handler.init();
-  return handler;
-};
+async function wrapper(...args) {
+  const handler = new Npm(args)
+  await handler.init()
+  return handler
+}
 
 module.exports = {
   exposed: ["createCredentials"],
@@ -64,4 +64,4 @@ module.exports = {
     type: wrapper
   },
   Npm: wrapper
-};
+}

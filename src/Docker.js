@@ -1,62 +1,62 @@
-import { Logger, ParameterProvider, ProcessUtils, StringUtils } from "@cantrips/core"
+import {
+  Logger,
+  ParameterProvider,
+  ProcessUtils,
+  StringUtils
+} from "@cantrips/core"
 
 class Docker {
   constructor(location, commandRunner) {
-    this.location = location;
-    this.runCommand = commandRunner || ProcessUtils.runCommand;
-    this.parameterProvider = new ParameterProvider();
+    this.location = location
+    this.runCommand = commandRunner || ProcessUtils.runCommand
+    this.parameterProvider = new ParameterProvider()
   }
 
-  async build({imageName, noCache = false} = {}) {
-    imageName = imageName || (await this.computeDefaultImageName());
+  async build({ imageName, noCache = false } = {}) {
+    imageName = imageName || (await this.computeDefaultImageName())
     return this.runCommand(
       `docker build ${noCache ? " --no-cache" : ""} -t ${imageName} .`,
       `Building docker image ${imageName}`
-    );
+    )
   }
 
-  async push({
-    imageName,
-    registryUrl,
-    tags,
-    latest = false
-  }= {}) {
+  async push({ imageName, registryUrl, tags, latest = false } = {}) {
     imageName =
       imageName ||
-      (await StringUtils.normalizeString(await this.computeDefaultImageName()));
+      (await StringUtils.normalizeString(await this.computeDefaultImageName()))
     registryUrl =
       registryUrl ||
-      (await this.parameterProvider.getParameter("DockerRegistry"));
-    tags = tags && tags.split(",") || (await this.computeDefaultTags());
-    latest = latest === true;
+      (await this.parameterProvider.getParameter("DockerRegistry"))
+    tags = (tags && tags.split(",")) || (await this.computeDefaultTags())
+    latest = latest === true
 
     if (!StringUtils.isNormalizedString(imageName)) {
-      Logger.error(`Image name ${imageName} is not a valid docker image name.`);
+      Logger.error(`Image name ${imageName} is not a valid docker image name.`)
     }
 
     var fullPushTargetPath = registryUrl
       ? `${registryUrl}/${imageName}`
-      : imageName;
+      : imageName
 
     await this.tag(imageName, "latest", "latest", fullPushTargetPath)
 
     if (latest) {
-      Logger.debug("Pushing latest image");
+      Logger.debug("Pushing latest image")
 
       await this.runCommand(
         `docker push ${fullPushTargetPath}:latest`,
         `Pushing docker image ${fullPushTargetPath}:latest`
-      );
+      )
     }
     for (const tag of tags) {
       if (!StringUtils.isNormalizedString(tag)) {
-        Logger.error(`Tag ${tag} is not a valid docker image name.`);
+        Logger.error(`Tag ${tag} is not a valid docker image name.`)
       }
-      await this.tag(fullPushTargetPath, "latest", tag);
+      await this.tag(fullPushTargetPath, "latest", tag)
       await this.runCommand(
         `docker push ${fullPushTargetPath}:${tag}`,
         `Pushing image ${fullPushTargetPath}:${tag}`
-      );
+      )
     }
   }
 
@@ -65,33 +65,33 @@ class Docker {
     return this.runCommand(
       `docker tag ${imageToTag}:${oldTag} ${newImageName}:${newTag}`,
       `Tagging image ${imageToTag}:${oldTag} as ${newImageName}:${newTag}`
-    );
+    )
   }
 
-  async login({username, password, registryUrl} = {}) {
-    username = username || process.env.DOCKER_USERNAME;
-    password = password || process.env.DOCKER_PASSWORD;
-    registryUrl = registryUrl || process.env.DOCKER_REGISTRY;
+  async login({ username, password, registryUrl } = {}) {
+    username = username || process.env.DOCKER_USERNAME
+    password = password || process.env.DOCKER_PASSWORD
+    registryUrl = registryUrl || process.env.DOCKER_REGISTRY
     return this.runCommand(
       `docker login -u ${username} -p ${password} ${registryUrl}`,
       `Logging into ${registryUrl}`
-    );
+    )
   }
 
   async computeDefaultTags() {
     return (await this.parameterProvider.getParameter("IsRelease"))
       ? [this.parameterProvider.getParameter("ReleaseVersion")]
       : [
-        StringUtils.normalizeString(
+          StringUtils.normalizeString(
             await this.parameterProvider.getParameter("ShortHash")
           )
-        ];
+        ]
   }
 
   async computeDefaultImageName() {
     return StringUtils.normalizeString(
       await this.parameterProvider.getParameter("ProjectName")
-    );
+    )
   }
 }
 
@@ -156,4 +156,4 @@ module.exports = {
     type: Docker
   },
   Docker
-};
+}
