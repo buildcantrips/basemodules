@@ -38,7 +38,7 @@ class Docker {
       ? `${registryUrl}/${imageName}`
       : imageName;
 
-    await this.tag(imageName, "latest", "latest")
+    await this.tag(imageName, "latest", "latest", fullPushTargetPath)
 
     if (latest) {
       Logger.debug("Pushing latest image");
