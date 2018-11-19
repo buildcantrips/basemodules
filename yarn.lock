@@ -677,10 +677,10 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@cantrips/core@<1.0.0":
-  version "0.13.13"
-  resolved "https://registry.yarnpkg.com/@cantrips/core/-/core-0.13.13.tgz#dbec7e00ccfd32a95d1a19da2e6ede2e3c9ab4ce"
-  integrity sha512-NIu+UZxpc9IomaT5iDKz/G94rgHXBWv4aUfSOZYThpOhN0ALb+VQIK9t+lYMk5tDyAKGZ+QF7DrtrxdYZLXOYA==
+"@cantrips/core@0.13.14":
+  version "0.13.14"
+  resolved "https://registry.yarnpkg.com/@cantrips/core/-/core-0.13.14.tgz#2ced2bdf72cb956d11732f4399791590577a8839"
+  integrity sha512-708CChOel02O9FEqOIedpc2bxp/tsTLBmxKVzlXXMm48h1kyttx4rCncKwXZBMrdcs1/CGz21j1mKWmSb7NxJQ==
   dependencies:
     ora "^3.0.0"
     requirejs "^2.3.6"

@@ -50,7 +50,7 @@ class ElasticBeanstalk {
   }
 }
 
-async function wrapper(...args) {
+async function wrapper(args) {
   const handler = new ElasticBeanstalk(args)
   await handler.init()
   return handler

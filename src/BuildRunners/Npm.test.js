@@ -7,10 +7,12 @@ import path from "path"
 import { expect } from "chai"
 
 describe("createCredentials", () => {
-  var tempDir = tmp.dirSync({ unsafeCleanup: true })
+  var tempDir
   var npmHandler
   const authToken = "authToken"
   beforeAll(() => {
+    tempDir = tmp.dirSync({ unsafeCleanup: true })
+
     process.env.NPM_AUTH_TOKEN = authToken
     jest.setTimeout(40000)
   })

@@ -47,7 +47,7 @@ class S3Handler {
   }
 }
 
-async function wrapper(...args) {
+async function wrapper(args) {
   const handler = new S3Handler(args)
   await handler.init()
   return handler

@@ -12,7 +12,6 @@ class Npm {
     this.registryUrl =
       registryUrl || process.env.NPM_REGISTRY_URL || "registry.npmjs.org/"
     this.userFolder = userFolder || process.env.HOME
-
     this.imageUrl = "node"
     this.container = undefined
   }
@@ -23,7 +22,6 @@ class Npm {
 
   async createCredentials() {
     Logger.info(`Creating Npm credential file...`)
-
     if (!fs.existsSync(this.userFolder)) {
       fs.mkdirSync(this.userFolder)
     }
@@ -38,12 +36,11 @@ class Npm {
     }
 
     fs.writeFileSync(configFilePath, config, { mode: "600" })
-
     Logger.info(`Npm credential file created: ${configFilePath}`)
   }
 }
 
-async function wrapper(...args) {
+async function wrapper(args) {
   const handler = new Npm(args)
   await handler.init()
   return handler
