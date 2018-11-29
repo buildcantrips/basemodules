@@ -26,16 +26,14 @@
     "verbose": false
   },
   "dependencies": {
-    "@cantrips/core": "0.13.14"
+    "@cantrips/core": "0.13.14",
+    "@babel/runtime": "7.1.2"
   },
   "scripts": {
     "test": "jest --runInBand src",
     "lint": "eslint src",
     "babel:build": "babel src -d lib --ignore node_modules,src/modules",
     "babel:watch": "babel src -d lib -w --ignore node_modules,src/modules"
-  },
-  "dependencies": {
-    "@babel/runtime": "7.1.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
