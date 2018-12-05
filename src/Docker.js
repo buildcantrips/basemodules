@@ -12,11 +12,13 @@ class Docker {
     this.parameterProvider = new ParameterProvider()
   }
 
-  async build({ imageName, noCache = false } = {}) {
-    imageName = imageName || (await this.computeDefaultImageName())
+  async build({ imageNames, noCache = false } = {}) {
+    imageNames = imageNames || (await this.computeDefaultImageName())
+    const parsedImageNames = imageNames.split(",")
+    const tagCommandString = parsedImageNames.join(" -t ")
     return this.runCommand(
-      `docker build ${noCache ? " --no-cache" : ""} -t ${imageName} .`,
-      `Building docker image ${imageName}`
+      `docker build ${noCache ? " --no-cache" : ""} -t ${tagCommandString} .`,
+      `Building docker image ${imageNames}`
     )
   }
 
@@ -100,8 +102,8 @@ module.exports = {
     build: {
       parameters: [
         {
-          name: "imageName",
-          help: "The name of the result image"
+          name: "imageNames",
+          help: "Result image name. Ex: my-image or my-image,my-image:customTag"
         },
         {
           name: "noCache",

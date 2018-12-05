@@ -76,6 +76,17 @@ describe("docker", async () => {
       expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`)
     })
 
+    it("docker images can be built with multiple image name parameter", async () => {
+      const customTag = "customTag"
+      await dockerHandler.build({
+        imageName: `${validDockerImageName},${validDockerImageName}:${customTag}`
+      })
+      expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`)
+      expect(getDockerImageList()).to.include(
+        `${validDockerImageName}:${customTag}`
+      )
+    })
+
     it("default docker image name is used on not setting it as parameter", async () => {
       await dockerHandler.build()
       expect(getDockerImageList()).to.include("validuser-validreponame:latest")
