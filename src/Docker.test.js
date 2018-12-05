@@ -144,9 +144,9 @@ describe("docker", async () => {
 
   describe("tag", () => {
     it("tags an image with new tag...", async () => {
-      var imageName = "image-to-tag"
+      var imageName = "image-to-tag3"
       var newTag = "new-tag"
-      await dockerHandler.build({ imageName })
+      await dockerHandler.build({ imageNames: imageName })
       await dockerHandler.tag(imageName, "latest", newTag)
       expect(getDockerImageList()).to.contain(`${imageName}:${newTag}`)
     })
