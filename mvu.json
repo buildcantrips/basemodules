@@ -1,5 +1,5 @@
 {
-  "currentVersion": "0.12.13",
+  "currentVersion": "0.12.14",
   "createCommit": true,
   "createTag": true,
   "commitMessage": "Bump version: {currentVersion} → {newVersion}",
