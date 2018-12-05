@@ -72,14 +72,14 @@ describe("docker", async () => {
 
   describe("build", () => {
     it("docker images can be built with image name parameter", async () => {
-      await dockerHandler.build({ imageName: validDockerImageName })
+      await dockerHandler.build({ imageNames: validDockerImageName })
       expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`)
     })
 
     it("docker images can be built with multiple image name parameter", async () => {
       const customTag = "customTag"
       await dockerHandler.build({
-        imageName: `${validDockerImageName},${validDockerImageName}:${customTag}`
+        imageNames: `${validDockerImageName},${validDockerImageName}:${customTag}`
       })
       expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`)
       expect(getDockerImageList()).to.include(
@@ -95,7 +95,7 @@ describe("docker", async () => {
     it("docker images can be built with no caching", async () => {
       var dockerHandler = new Docker(tempDir, command => command)
       var result = await dockerHandler.build({
-        imageName: null,
+        imageNames: null,
         noCache: true
       })
       expect(result).to.contain("--no-cache")
