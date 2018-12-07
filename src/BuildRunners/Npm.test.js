@@ -10,12 +10,17 @@ describe("createCredentials", () => {
   var tempDir
   var npmHandler
   const authToken = "authToken"
-  before(async () => {
-    tempDir = tmp.dirSync({ unsafeCleanup: true })
+
+  before(async ()=> {
     process.env.NPM_AUTH_TOKEN = authToken
+    tempDir = tmp.dirSync({ unsafeCleanup: true })
+    await Npm({ userFolder: tempDir })
+  })
+  beforeEach(() => {
+    tempDir = tmp.dirSync({ unsafeCleanup: true })
   })
 
-  after(() => {
+  afterEach(() => {
     tempDir.removeCallback()
   })
 
