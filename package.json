@@ -8,8 +8,8 @@
   "license": "MIT",
   "nyc": {
     "check-coverage": true,
-    "lines": 70,
-    "statements": 60,
+    "lines": 50,
+    "statements": 50,
     "functions": 30,
     "branches": 40,
     "include": [
