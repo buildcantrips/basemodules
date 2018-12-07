@@ -10,10 +10,10 @@ describe("createCredentials", () => {
   var tempDir
   var npmHandler
   const authToken = "authToken"
-  before(() => {
+  before(async () => {
     tempDir = tmp.dirSync({ unsafeCleanup: true })
-
     process.env.NPM_AUTH_TOKEN = authToken
+    await new Promise(resolve => setTimeout(resolve, 500))
   })
 
   after(() => {
