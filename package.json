@@ -10,8 +10,8 @@
     "check-coverage": true,
     "lines": 70,
     "statements": 70,
-    "functions": 40,
-    "branches": 60,
+    "functions": 30,
+    "branches": 40,
     "include": [
       "src/**/*.js"
     ],
