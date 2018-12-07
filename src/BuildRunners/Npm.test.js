@@ -13,20 +13,10 @@ describe("createCredentials", () => {
   before(async () => {
     tempDir = tmp.dirSync({ unsafeCleanup: true })
     process.env.NPM_AUTH_TOKEN = authToken
-    await new Promise(resolve => setTimeout(resolve, 500))
   })
 
   after(() => {
     tempDir.removeCallback()
-  })
-
-  it("it uses values from the environment", async () => {
-    npmHandler = await Npm({ userFolder: tempDir.name })
-    npmHandler.createCredentials()
-    var configData = fs.readFileSync(path.join(tempDir.name, ".npmrc"), "utf8")
-    expect(configData).contain(
-      `//registry.npmjs.org/:_authToken=${authToken}\n`
-    )
   })
 
   it("creates npm user folder if does not exists", async () => {
@@ -48,6 +38,15 @@ describe("createCredentials", () => {
     var configData = fs.readFileSync(path.join(tempDir.name, ".npmrc"), "utf8")
     expect(configData).contain(
       "//validRegistryURl:_authToken=validAuthToken\n"
+    )
+  })
+
+  it("it uses values from the environment", async () => {
+    npmHandler = await Npm({ userFolder: tempDir.name })
+    npmHandler.createCredentials()
+    var configData = fs.readFileSync(path.join(tempDir.name, ".npmrc"), "utf8")
+    expect(configData).contain(
+      `//registry.npmjs.org/:_authToken=${authToken}\n`
     )
   })
 })
