@@ -38,15 +38,15 @@ class Docker {
     const imageTagsByDockerFiles = this.computeTagsByDockerFiles(
       parsedImageDescriptors
     )
-    Object.keys(imageTagsByDockerFiles).forEach(async dockerFile => {
+    await Promise.all(Object.keys(imageTagsByDockerFiles).map(async dockerFile => {
       const tagCommandString = imageTagsByDockerFiles[dockerFile].join(" -t ")
-      await this.runCommand(
+      return this.runCommand(
         `docker build -f ${dockerFile} ${
           noCache ? " --no-cache" : ""
         } -t ${tagCommandString} .`,
         `Building docker image ${images}`
       )
-    })
+    }))
   }
 
   async push({ imageName, registryUrl, tags, latest = false } = {}) {

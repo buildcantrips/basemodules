@@ -22,7 +22,7 @@ describe("createCredentials", () => {
 
   it("it uses values from the environment", async () => {
     npmHandler = await Npm({ userFolder: tempDir.name })
-    await npmHandler.createCredentials()
+    npmHandler.createCredentials()
     var configData = fs.readFileSync(path.join(tempDir.name, ".npmrc"), "utf8")
     expect(configData).contain(
       `//registry.npmjs.org/:_authToken=${authToken}\n`

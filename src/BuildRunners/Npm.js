@@ -20,7 +20,7 @@ class Npm {
     this.container = await ContainerProvider(this.imageUrl)
   }
 
-  async createCredentials() {
+  createCredentials() {
     Logger.info(`Creating Npm credential file...`)
     if (!fs.existsSync(this.userFolder)) {
       fs.mkdirSync(this.userFolder)

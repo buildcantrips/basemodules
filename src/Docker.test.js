@@ -34,7 +34,7 @@ function snapShotDockerImages() {
     .split("\n")
 }
 
-describe("docker", async () => {
+describe("docker", () => {
   var alreadyPresentDockerImage
   var dockerHandler
   var validDockerImageName = "my-test-org-my-test-image"
@@ -52,15 +52,18 @@ describe("docker", async () => {
     process.env.DOCKER_PASSWORD = "validDockerPasswordFromEnv"
     dockerHandler = new Docker(tempDir)
     alreadyPresentDockerImage = snapShotDockerImages()
+
   })
   after(() => {
     if (fs.existsSync(tempDir)) {
       FileSystemUtils.deleteFolderRecursive(tempDir)
     }
     var currentDockerImages = snapShotDockerImages()
+
     var imagesToRemove = currentDockerImages
       .filter(image => !alreadyPresentDockerImage.includes(image))
       .join(" ")
+
     if (imagesToRemove) {
       childProcess.execSync(`docker rmi -f ${imagesToRemove}`)
     }
