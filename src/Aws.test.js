@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env mocha */
 
 import { Aws } from "./Aws"
 import tmp from "tmp"
@@ -12,13 +12,13 @@ describe("createCredentials", () => {
   var tempDir = tmp.dirSync({ unsafeCleanup: true })
   const validAccessKeyId = "validAccessKeyId"
   const validSecretAccessKey = "validSecretAccessKey"
-  beforeAll(() => {
+  before(() => {
     process.env.AWS_ACCESS_KEY_ID = validAccessKeyId
     process.env.AWS_SECRET_ACCESS_KEY = validSecretAccessKey
     aws = new Aws({ userFolder: tempDir.name })
   })
 
-  afterAll(() => {
+  after(() => {
     tempDir.removeCallback()
   })
 

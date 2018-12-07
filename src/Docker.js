@@ -12,14 +12,41 @@ class Docker {
     this.parameterProvider = new ParameterProvider()
   }
 
-  async build({ imageNames, noCache = false } = {}) {
-    imageNames = imageNames || (await this.computeDefaultImageName())
-    const parsedImageNames = imageNames.split(",")
-    const tagCommandString = parsedImageNames.join(" -t ")
-    return this.runCommand(
-      `docker build ${noCache ? " --no-cache" : ""} -t ${tagCommandString} .`,
-      `Building docker image ${imageNames}`
+  getFirstMatchOrDefault(text, regex) {
+    const result = text.match(regex)
+    return result ? result[1] : null
+  }
+
+  computeTagsByDockerFiles(parsedImageDescriptors) {
+    const resultHash = {}
+    parsedImageDescriptors.forEach(imageDescriptor => {
+      const dockerFile = this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/)  || "Dockerfile"
+      const tag = this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest"
+      const imageName = this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || ""
+
+      if (!resultHash[dockerFile]) {
+        resultHash[dockerFile] = []
+      }
+      resultHash[dockerFile].push(`${imageName}:${tag}`)
+    })
+    return resultHash
+  }
+
+  async build({ images, noCache = false } = {}) {
+    images = images || (await this.computeDefaultImageName())
+    const parsedImageDescriptors = images.split(",")
+    const imageTagsByDockerFiles = this.computeTagsByDockerFiles(
+      parsedImageDescriptors
     )
+    Object.keys(imageTagsByDockerFiles).forEach(async dockerFile => {
+      const tagCommandString = imageTagsByDockerFiles[dockerFile].join(" -t ")
+      await this.runCommand(
+        `docker build -f ${dockerFile} ${
+          noCache ? " --no-cache" : ""
+        } -t ${tagCommandString} .`,
+        `Building docker image ${images}`
+      )
+    })
   }
 
   async push({ imageName, registryUrl, tags, latest = false } = {}) {
@@ -102,8 +129,14 @@ module.exports = {
     build: {
       parameters: [
         {
-          name: "imageNames",
-          help: "Result image name. Ex: my-image or my-image,my-image:customTag"
+          name: "images",
+          help:
+            "Descriptor of the result images. Ex:\
+            my-image => Building my-image:latest from Dockerfile\
+            my-image:customTag => Building my-image:customTag from Dockerfile\
+            my-image:someTag[Dockerfile.web] => Building my-image:someTag from Dockerfile.web\
+            my-image[Dockerfile.web],my-image:someTag => Building my-image from Dockerfile.web\
+                                                         and building my-image:someTag from Dockerfile"
         },
         {
           name: "noCache",

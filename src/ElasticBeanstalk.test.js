@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env mocha */
 
 import { ElasticBeanstalk } from "./ElasticBeanstalk"
 import chai, { expect } from "chai"
@@ -20,10 +20,9 @@ describe("elasticBeanstalk", () => {
   var multiBranchPattern = `${validBranch}:${validEnvironment}|${otherValidBranch}:${otherValidEnvironment}`
   var invalidBranchPattern = "notExistingBranch:notExistingEnvironment"
 
-  beforeAll(async () => {
+  before(async () => {
     process.env.CIRCLECI = "CIRCLECI"
     process.env.CIRCLE_BRANCH = otherValidBranch
-    jest.setTimeout(20000)
     elasticBeanstalk = await ElasticBeanstalk()
   })
   beforeEach(() => {

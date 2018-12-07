@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env mocha */
 
 import { Docker } from "./Docker"
 import { FileSystemUtils } from "@cantrips/core"
@@ -39,7 +39,7 @@ describe("docker", async () => {
   var dockerHandler
   var validDockerImageName = "my-test-org-my-test-image"
   var validDockerRegistry = "validDockerRegistry"
-  beforeAll(() => {
+  before(() => {
     process.env.CIRCLECI = "CIRCLECI"
     process.env.CIRCLE_BRANCH = "validBranchName"
     process.env.CIRCLE_PROJECT_USERNAME = "validUser"
@@ -52,9 +52,8 @@ describe("docker", async () => {
     process.env.DOCKER_PASSWORD = "validDockerPasswordFromEnv"
     dockerHandler = new Docker(tempDir)
     alreadyPresentDockerImage = snapShotDockerImages()
-    jest.setTimeout(60000)
   })
-  afterAll(() => {
+  after(() => {
     if (fs.existsSync(tempDir)) {
       FileSystemUtils.deleteFolderRecursive(tempDir)
     }
@@ -70,16 +69,32 @@ describe("docker", async () => {
     recreateGitRepository()
   })
 
+  describe("computeTagsByDockerFiles", () => {
+    [
+      { input: ["valid-image"], expectedResult: { Dockerfile: ["valid-image:latest"] }, description: "Default dockerfile and tag" },
+      { input: ["valid-image", "valid-image2"], expectedResult: { "Dockerfile": ["valid-image:latest", "valid-image2:latest"] }, description: "Multiple images -  default dockerfile and tags" },
+      { input: ["valid-image:valid-tag"], expectedResult: { Dockerfile: ["valid-image:valid-tag"] }, description: "Custom tag" },
+      { input: ["valid-image:valid-tag[dockerfile.valid]"], expectedResult: { "dockerfile.valid": ["valid-image:valid-tag"] }, description: "Custom tag and dockerfile" },
+      { input: ["valid-image[dockerfile.valid]"], expectedResult: { "dockerfile.valid": ["valid-image:latest"] }, description: "Default tag and custom dockerfile" }
+
+    ].forEach(testCase => {
+      it(`computes results correctly: ${testCase.description}`, () => {
+        expect(
+          dockerHandler.computeTagsByDockerFiles(testCase.input)
+        ).to.deep.equal(testCase.expectedResult)
+      })
+    })
+  })
   describe("build", () => {
     it("docker images can be built with image name parameter", async () => {
-      await dockerHandler.build({ imageNames: validDockerImageName })
+      await dockerHandler.build({ images: validDockerImageName })
       expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`)
     })
 
     it("docker images can be built with multiple image name parameter", async () => {
       const customTag = "customTag"
       await dockerHandler.build({
-        imageNames: `${validDockerImageName},${validDockerImageName}:${customTag}`
+        images: `${validDockerImageName},${validDockerImageName}:${customTag}`
       })
       expect(getDockerImageList()).to.include(`${validDockerImageName}:latest`)
       expect(getDockerImageList()).to.include(
@@ -90,15 +105,6 @@ describe("docker", async () => {
     it("default docker image name is used on not setting it as parameter", async () => {
       await dockerHandler.build()
       expect(getDockerImageList()).to.include("validuser-validreponame:latest")
-    })
-
-    it("docker images can be built with no caching", async () => {
-      var dockerHandler = new Docker(tempDir, command => command)
-      var result = await dockerHandler.build({
-        imageNames: null,
-        noCache: true
-      })
-      expect(result).to.contain("--no-cache")
     })
   })
   describe("computeDefaultTags", () => {
@@ -146,7 +152,7 @@ describe("docker", async () => {
     it("tags an image with new tag...", async () => {
       var imageName = "image-to-tag3"
       var newTag = "new-tag"
-      await dockerHandler.build({ imageNames: imageName })
+      await dockerHandler.build({ images: imageName })
       await dockerHandler.tag(imageName, "latest", newTag)
       expect(getDockerImageList()).to.contain(`${imageName}:${newTag}`)
     })
@@ -155,7 +161,7 @@ describe("docker", async () => {
     var results = []
     var dockerHandler
 
-    beforeAll(() => {
+    before(() => {
       dockerHandler = new Docker(tempDir, command => results.push(command))
       dockerHandler.logger = {
         info: msg => {

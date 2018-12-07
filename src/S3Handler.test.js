@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env mocha */
 
 import { S3Handler } from "./S3Handler"
 import chai, { expect } from "chai"
@@ -14,8 +14,7 @@ describe("S3Handler", () => {
   const validFolderName = "validFolderName"
   const validAccessKeyId = "validAccessKeyId"
   const validSecretAccessKey = "validSecretAccessKey"
-  beforeAll(async () => {
-    jest.setTimeout(20000)
+  before(async () => {
     process.env.AWS_ACCESS_KEY_ID = validAccessKeyId
     process.env.AWS_SECRET_ACCESS_KEY = validSecretAccessKey
     s3Handler = await S3Handler({
@@ -39,7 +38,7 @@ describe("S3Handler", () => {
     })
 
     describe("list", async () => {
-      beforeAll(async () => {
+      before(async () => {
         s3Handler = await S3Handler({
           accessKeyId: "keyId",
           secretAccessKey: "accessKey",
@@ -57,7 +56,7 @@ describe("S3Handler", () => {
       })
     })
     describe("get", async () => {
-      beforeAll(async () => {
+      before(async () => {
         s3Handler = await S3Handler({
           s3Uri: "uri"
         })

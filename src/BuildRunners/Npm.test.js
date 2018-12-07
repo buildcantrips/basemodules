@@ -1,4 +1,4 @@
-/* eslint-env jest */
+/* eslint-env mocha */
 
 import { Npm } from "./Npm"
 import tmp from "tmp"
@@ -10,14 +10,13 @@ describe("createCredentials", () => {
   var tempDir
   var npmHandler
   const authToken = "authToken"
-  beforeAll(() => {
+  before(() => {
     tempDir = tmp.dirSync({ unsafeCleanup: true })
 
     process.env.NPM_AUTH_TOKEN = authToken
-    jest.setTimeout(40000)
   })
 
-  afterAll(() => {
+  after(() => {
     tempDir.removeCallback()
   })
 
