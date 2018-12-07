@@ -6,24 +6,26 @@
   "repository": "https://github.com/buildcantrips/basemodules.git",
   "author": "csaba.makara@gmail.com",
   "license": "MIT",
-  "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx}",
-      "!src/app.js",
-      "!**/node_modules/**",
-      "!**/vendor/**"
+  "nyc": {
+    "check-coverage": true,
+    "lines": 70,
+    "statements": 70,
+    "functions": 40,
+    "branches": 60,
+    "include": [
+      "src/**/*.js"
     ],
-    "coverageDirectory": ".coverage",
-    "coverageThreshold": {
-      "global": {
-        "statements": 85
-      }
-    },
-    "reporters": [
-      "jest-spec-reporter"
+    "exclude": [
+      "src/**/*.test.js",
+      "src/**/index.js"
     ],
-    "verbose": false
+    "reporter": [
+      "teamcity",
+      "text",
+      "text-summary"
+    ],
+    "cache": false,
+    "all": true
   },
   "dependencies": {
     "@babel/register": "^7.0.0",
@@ -32,7 +34,8 @@
     "mocha": "^5.2.0"
   },
   "scripts": {
-    "test": "mocha --compilers js:@babel/register src",
+    "test": "mocha --compilers js:@babel/register --timeout 3000 --recursive src",
+    "test:ci": "nyc mocha --compilers js:@babel/register --timeout 3000 --recursive src",
     "lint": "eslint src",
     "babel:build": "babel src -d lib --ignore node_modules,src/modules",
     "babel:watch": "babel src -d lib -w --ignore node_modules,src/modules"
