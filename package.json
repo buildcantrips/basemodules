@@ -1,6 +1,6 @@
 {
   "name": "@cantrips/basemodules",
-  "version": "0.12.15",
+  "version": "0.12.16",
   "description": "Cantrips-basemodules for more descriptive builds",
   "main": "./lib",
   "repository": "https://github.com/buildcantrips/basemodules.git",
