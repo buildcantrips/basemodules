@@ -29,7 +29,7 @@
   "dependencies": {
     "@babel/register": "^7.0.0",
     "@babel/runtime": "7.1.2",
-    "@cantrips/core": "0.13.18"
+    "@cantrips/core": "0.13.19"
   },
   "scripts": {
     "test": "mocha --compilers js:@babel/register --timeout 10000 --recursive src",
