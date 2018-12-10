@@ -8,7 +8,7 @@ import {
 class Docker {
   constructor(location, commandRunner) {
     this.location = location
-    this.runCommand = commandRunner || ProcessUtils.runCommand
+    this.runCommand = commandRunner || ProcessUtils.runCommandSync
     this.parameterProvider = new ParameterProvider()
   }
 
@@ -34,8 +34,9 @@ class Docker {
   computeTagsByDockerFilesFromJson(parsedImageDescriptorJson) {
     const resultHash = {}
     Object.keys(parsedImageDescriptorJson).forEach(imageName => {
-      const dockerFile = parsedImageDescriptorJson[imageName].dockerFile || "Dockerfile"
-      const tags = parsedImageDescriptorJson[imageName].tags || ["latest"]
+
+      const dockerFile = parsedImageDescriptorJson[imageName]['dockerFile'] || "Dockerfile"
+      const tags = parsedImageDescriptorJson[imageName]['tags'] || ["latest"]
 
       if (!resultHash[dockerFile]) {
         resultHash[dockerFile] = []
@@ -52,24 +53,30 @@ class Docker {
     let imageTagsByDockerFiles
     try {
       const parsedImageDescriptors = JSON.parse(images)
+
       imageTagsByDockerFiles = this.computeTagsByDockerFilesFromJson(
-        parsedImageDescriptors
+        parsedImageDescriptors['docker']
       )
+      Logger.debug("Docker build - Json input format detected")
     } catch (e) {
       const parsedImageDescriptors = images.split(",")
       imageTagsByDockerFiles = this.computeTagsByDockerFilesFromString(
         parsedImageDescriptors
       )
+      Logger.debug("Docker build - String input format detected")
     }
-    await Promise.all(Object.keys(imageTagsByDockerFiles).map(async dockerFile => {
+    Logger.debug(`Building: ${JSON.stringify(imageTagsByDockerFiles, null, 2)}`)
+    for (let dockerFile of Object.keys(imageTagsByDockerFiles)) {
       const tagCommandString = imageTagsByDockerFiles[dockerFile].join(" -t ")
-      return this.runCommand(
+
+      this.runCommand(
         `docker build -f ${dockerFile} ${
           noCache ? " --no-cache" : ""
         } -t ${tagCommandString} .`,
         `Building docker image from dockerfile ${dockerFile} with tags ${imageTagsByDockerFiles[dockerFile].join(" ")}`
       )
-    }))
+
+    }
   }
 
   async push({ imageName, registryUrl, tags, latest = false } = {}) {

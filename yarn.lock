@@ -677,11 +677,12 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@cantrips/core@0.13.14":
-  version "0.13.14"
-  resolved "https://registry.yarnpkg.com/@cantrips/core/-/core-0.13.14.tgz#2ced2bdf72cb956d11732f4399791590577a8839"
-  integrity sha512-708CChOel02O9FEqOIedpc2bxp/tsTLBmxKVzlXXMm48h1kyttx4rCncKwXZBMrdcs1/CGz21j1mKWmSb7NxJQ==
+"@cantrips/core@0.13.18":
+  version "0.13.18"
+  resolved "https://registry.yarnpkg.com/@cantrips/core/-/core-0.13.18.tgz#4f7cf801bcd22037bff29fa0ebf542161bc01603"
+  integrity sha512-fU3WSbnNxKuu2wFtoPI+Gc8ADUwuBQF3nfRDl2RvbXHtecAdbQhJKxHHRwQeHCIchhaq34BqvEyUFYUowcCNBg==
   dependencies:
+    "@babel/runtime" "7.1.2"
     ora "^3.0.0"
     requirejs "^2.3.6"
     simple-git "^1.106.0"

@@ -29,8 +29,7 @@
   "dependencies": {
     "@babel/register": "^7.0.0",
     "@babel/runtime": "7.1.2",
-    "@cantrips/core": "0.13.14",
-    "mocha": "^5.2.0"
+    "@cantrips/core": "0.13.18"
   },
   "scripts": {
     "test": "mocha --compilers js:@babel/register --timeout 10000 --recursive src",
@@ -58,6 +57,7 @@
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "tmp": "0.0.33"
   }
