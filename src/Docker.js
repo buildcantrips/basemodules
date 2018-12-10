@@ -17,7 +17,7 @@ class Docker {
     return result ? result[1] : null
   }
 
-  computeTagsByDockerFiles(parsedImageDescriptors) {
+  computeTagsByDockerFilesFromString(parsedImageDescriptors) {
     const resultHash = {}
     parsedImageDescriptors.forEach(imageDescriptor => {
       const dockerFile = this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/)  || "Dockerfile"
@@ -31,20 +31,43 @@ class Docker {
     })
     return resultHash
   }
+  computeTagsByDockerFilesFromJson(parsedImageDescriptorJson) {
+    const resultHash = {}
+    Object.keys(parsedImageDescriptorJson).forEach(imageName => {
+      const dockerFile = parsedImageDescriptorJson[imageName].dockerFile || "Dockerfile"
+      const tags = parsedImageDescriptorJson[imageName].tags || ["latest"]
+
+      if (!resultHash[dockerFile]) {
+        resultHash[dockerFile] = []
+      }
+      tags.forEach(tag => {
+        resultHash[dockerFile].push(`${imageName}:${tag}`)
+      })
+    })
+    return resultHash
+  }
 
   async build({ images, noCache = false } = {}) {
     images = images || (await this.computeDefaultImageName())
-    const parsedImageDescriptors = images.split(",")
-    const imageTagsByDockerFiles = this.computeTagsByDockerFiles(
-      parsedImageDescriptors
-    )
+    let imageTagsByDockerFiles
+    try {
+      const parsedImageDescriptors = JSON.parse(images)
+      imageTagsByDockerFiles = this.computeTagsByDockerFilesFromJson(
+        parsedImageDescriptors
+      )
+    } catch (e) {
+      const parsedImageDescriptors = images.split(",")
+      imageTagsByDockerFiles = this.computeTagsByDockerFilesFromString(
+        parsedImageDescriptors
+      )
+    }
     await Promise.all(Object.keys(imageTagsByDockerFiles).map(async dockerFile => {
       const tagCommandString = imageTagsByDockerFiles[dockerFile].join(" -t ")
       return this.runCommand(
         `docker build -f ${dockerFile} ${
           noCache ? " --no-cache" : ""
         } -t ${tagCommandString} .`,
-        `Building docker image ${images}`
+        `Building docker image from dockerfile ${dockerFile} with tags ${imageTagsByDockerFiles[dockerFile].join(" ")}`
       )
     }))
   }

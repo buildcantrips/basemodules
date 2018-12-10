@@ -52,7 +52,6 @@ describe("docker", () => {
     process.env.DOCKER_PASSWORD = "validDockerPasswordFromEnv"
     dockerHandler = new Docker(tempDir)
     alreadyPresentDockerImage = snapShotDockerImages()
-
   })
   after(() => {
     if (fs.existsSync(tempDir)) {
@@ -72,7 +71,7 @@ describe("docker", () => {
     recreateGitRepository()
   })
 
-  describe("computeTagsByDockerFiles", () => {
+  describe("computeTagsByDockerFilesFromString", () => {
     [
       { input: ["valid-image"], expectedResult: { Dockerfile: ["valid-image:latest"] }, description: "Default dockerfile and tag" },
       { input: ["valid-image", "valid-image2"], expectedResult: { "Dockerfile": ["valid-image:latest", "valid-image2:latest"] }, description: "Multiple images -  default dockerfile and tags" },
@@ -83,7 +82,24 @@ describe("docker", () => {
     ].forEach(testCase => {
       it(`computes results correctly: ${testCase.description}`, () => {
         expect(
-          dockerHandler.computeTagsByDockerFiles(testCase.input)
+          dockerHandler.computeTagsByDockerFilesFromString(testCase.input)
+        ).to.deep.equal(testCase.expectedResult)
+      })
+    })
+  })
+
+  describe("computeTagsByDockerFilesFromJson", () => {
+    [
+      { input: {"valid-image":{}}, expectedResult: { Dockerfile: ["valid-image:latest"] }, description: "Default dockerfile and tag" },
+      { input: {"valid-image":{}, "valid-image2":{}}, expectedResult: { "Dockerfile": ["valid-image:latest", "valid-image2:latest"] }, description: "Multiple images -  default dockerfile and tags" },
+      { input: {"valid-image":{tags: ["valid-tag"]}}, expectedResult: { Dockerfile: ["valid-image:valid-tag"] }, description: "Custom tag" },
+      { input: {"valid-image":{tags:["valid-tag"], dockerFile: "dockerfile.valid"}}, expectedResult: { "dockerfile.valid": ["valid-image:valid-tag"] }, description: "Custom tag and dockerfile" },
+      { input: {"valid-image": {dockerFile: "dockerfile.valid"}}, expectedResult: { "dockerfile.valid": ["valid-image:latest"] }, description: "Default tag and custom dockerfile" }
+
+    ].forEach(testCase => {
+      it(`computes results correctly: ${testCase.description}`, () => {
+        expect(
+          dockerHandler.computeTagsByDockerFilesFromJson(testCase.input)
         ).to.deep.equal(testCase.expectedResult)
       })
     })

@@ -33,7 +33,7 @@
     "mocha": "^5.2.0"
   },
   "scripts": {
-    "test": "mocha --compilers js:@babel/register --timeout 5000 --recursive src",
+    "test": "mocha --compilers js:@babel/register --timeout 10000 --recursive src",
     "test:ci": "nyc mocha --compilers js:@babel/register --timeout 20000 --recursive src",
     "lint": "eslint src",
     "babel:build": "babel src -d lib --ignore node_modules,src/modules",
