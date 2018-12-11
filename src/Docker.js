@@ -20,9 +20,17 @@ class Docker {
   computeTagsByDockerFilesFromString(parsedImageDescriptors) {
     const resultHash = {}
     parsedImageDescriptors.forEach(imageDescriptor => {
-      const dockerFile = this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/)  || "Dockerfile"
-      const tag = this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest"
-      const imageName = this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || ""
+      const dockerFile =
+        this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/) ||
+        "Dockerfile"
+      const tag =
+        this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest"
+      const imageName =
+        this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || ""
+
+      if (!StringUtils.isNormalizedString(imageName)) {
+        throw `Image name ${imageName} is not a valid docker image name.`
+      }
 
       if (!resultHash[dockerFile]) {
         resultHash[dockerFile] = []
@@ -31,12 +39,17 @@ class Docker {
     })
     return resultHash
   }
-  computeTagsByDockerFilesFromJson(parsedImageDescriptorJson) {
+  async computeTagsByDockerFilesFromJson(parsedImageDescriptorJson) {
     const resultHash = {}
-    Object.keys(parsedImageDescriptorJson).forEach(imageName => {
+    Object.keys(parsedImageDescriptorJson).forEach(async imageName => {
+      if (!StringUtils.isNormalizedString(imageName)) {
+        throw `Image name ${imageName} is not a valid docker image name.`
+      }
 
-      const dockerFile = parsedImageDescriptorJson[imageName]['dockerFile'] || "Dockerfile"
-      const tags = parsedImageDescriptorJson[imageName]['tags'] || ["latest"]
+      const dockerFile =
+        parsedImageDescriptorJson[imageName]["dockerFile"] || "Dockerfile"
+
+      const tags = parsedImageDescriptorJson[imageName]["tags"] || ["latest"]
 
       if (!resultHash[dockerFile]) {
         resultHash[dockerFile] = []
@@ -48,74 +61,57 @@ class Docker {
     return resultHash
   }
 
-  async build({ images, noCache = false } = {}) {
+  async computeImagesByDockerFiles(images) {
+    let imagesByDockerFiles
     images = images || (await this.computeDefaultImageName())
-    let imageTagsByDockerFiles
     try {
       const parsedImageDescriptors = JSON.parse(images)
-
-      imageTagsByDockerFiles = this.computeTagsByDockerFilesFromJson(
-        parsedImageDescriptors['docker']
+      imagesByDockerFiles = await this.computeTagsByDockerFilesFromJson(
+        parsedImageDescriptors["docker"]
       )
-      Logger.debug("Docker build - Json input format detected")
+      Logger.debug("Docker - Json input format detected")
     } catch (e) {
       const parsedImageDescriptors = images.split(",")
-      imageTagsByDockerFiles = this.computeTagsByDockerFilesFromString(
+      imagesByDockerFiles = await this.computeTagsByDockerFilesFromString(
         parsedImageDescriptors
       )
-      Logger.debug("Docker build - String input format detected")
+      Logger.debug("Docker - String input format detected")
     }
-    Logger.debug(`Building: ${JSON.stringify(imageTagsByDockerFiles, null, 2)}`)
-    for (let dockerFile of Object.keys(imageTagsByDockerFiles)) {
-      const tagCommandString = imageTagsByDockerFiles[dockerFile].join(" -t ")
+    Logger.debug(`Detected: ${JSON.stringify(imagesByDockerFiles, null, 2)}`)
+    return imagesByDockerFiles
+  }
+
+  async build({ images, noCache = false } = {}) {
+    let imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
+    for (let dockerFile of Object.keys(imagesByDockerFiles)) {
+      const tagCommandString = imagesByDockerFiles[dockerFile].join(" -t ")
 
       this.runCommand(
         `docker build -f ${dockerFile} ${
           noCache ? " --no-cache" : ""
         } -t ${tagCommandString} .`,
-        `Building docker image from dockerfile ${dockerFile} with tags ${imageTagsByDockerFiles[dockerFile].join(" ")}`
+        `Building docker image from dockerfile ${dockerFile} with tags ${imagesByDockerFiles[
+          dockerFile
+        ].join(" ")}`
       )
-
     }
   }
 
-  async push({ imageName, registryUrl, tags, latest = false } = {}) {
-    imageName =
-      imageName ||
-      (await StringUtils.normalizeString(await this.computeDefaultImageName()))
-    registryUrl =
-      registryUrl ||
-      (await this.parameterProvider.getParameter("DockerRegistry"))
-    tags = (tags && tags.split(",")) || (await this.computeDefaultTags())
-    latest = latest === true
+  async push(options = {}) {
+    let {
+      images,
+      registryUrl = await this.parameterProvider.getParameter("DockerRegistry")
+    } = options
 
-    if (!StringUtils.isNormalizedString(imageName)) {
-      Logger.error(`Image name ${imageName} is not a valid docker image name.`)
-    }
+    const imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
 
-    var fullPushTargetPath = registryUrl
-      ? `${registryUrl}/${imageName}`
-      : imageName
-
-    await this.tag(imageName, "latest", "latest", fullPushTargetPath)
-
-    if (latest) {
-      Logger.debug("Pushing latest image")
-
-      await this.runCommand(
-        `docker push ${fullPushTargetPath}:latest`,
-        `Pushing docker image ${fullPushTargetPath}:latest`
-      )
-    }
-    for (const tag of tags) {
-      if (!StringUtils.isNormalizedString(tag)) {
-        Logger.error(`Tag ${tag} is not a valid docker image name.`)
+    for (let dockerFile of Object.keys(imagesByDockerFiles)) {
+      for (let image of imagesByDockerFiles[dockerFile]) {
+        this.runCommand(
+          `docker push ${registryUrl}/${image}`,
+          `Pushing image ${registryUrl}/${image}`
+        )
       }
-      await this.tag(fullPushTargetPath, "latest", tag)
-      await this.runCommand(
-        `docker push ${fullPushTargetPath}:${tag}`,
-        `Pushing image ${fullPushTargetPath}:${tag}`
-      )
     }
   }
 

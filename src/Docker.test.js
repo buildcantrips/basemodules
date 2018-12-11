@@ -73,16 +73,37 @@ describe("docker", () => {
 
   describe("computeTagsByDockerFilesFromString", () => {
     [
-      { input: ["valid-image"], expectedResult: { Dockerfile: ["valid-image:latest"] }, description: "Default dockerfile and tag" },
-      { input: ["valid-image", "valid-image2"], expectedResult: { "Dockerfile": ["valid-image:latest", "valid-image2:latest"] }, description: "Multiple images -  default dockerfile and tags" },
-      { input: ["valid-image:valid-tag"], expectedResult: { Dockerfile: ["valid-image:valid-tag"] }, description: "Custom tag" },
-      { input: ["valid-image:valid-tag[dockerfile.valid]"], expectedResult: { "dockerfile.valid": ["valid-image:valid-tag"] }, description: "Custom tag and dockerfile" },
-      { input: ["valid-image[dockerfile.valid]"], expectedResult: { "dockerfile.valid": ["valid-image:latest"] }, description: "Default tag and custom dockerfile" }
-
+      {
+        input: ["valid-image"],
+        expectedResult: { Dockerfile: ["valid-image:latest"] },
+        description: "Default dockerfile and tag"
+      },
+      {
+        input: ["valid-image", "valid-image2"],
+        expectedResult: {
+          Dockerfile: ["valid-image:latest", "valid-image2:latest"]
+        },
+        description: "Multiple images -  default dockerfile and tags"
+      },
+      {
+        input: ["valid-image:valid-tag"],
+        expectedResult: { Dockerfile: ["valid-image:valid-tag"] },
+        description: "Custom tag"
+      },
+      {
+        input: ["valid-image:valid-tag[dockerfile.valid]"],
+        expectedResult: { "dockerfile.valid": ["valid-image:valid-tag"] },
+        description: "Custom tag and dockerfile"
+      },
+      {
+        input: ["valid-image[dockerfile.valid]"],
+        expectedResult: { "dockerfile.valid": ["valid-image:latest"] },
+        description: "Default tag and custom dockerfile"
+      }
     ].forEach(testCase => {
-      it(`computes results correctly: ${testCase.description}`, () => {
+      it(`computes results correctly: ${testCase.description}`, async () => {
         expect(
-          dockerHandler.computeTagsByDockerFilesFromString(testCase.input)
+          await dockerHandler.computeTagsByDockerFilesFromString(testCase.input)
         ).to.deep.equal(testCase.expectedResult)
       })
     })
@@ -90,16 +111,39 @@ describe("docker", () => {
 
   describe("computeTagsByDockerFilesFromJson", () => {
     [
-      { input: {"valid-image":{}}, expectedResult: { Dockerfile: ["valid-image:latest"] }, description: "Default dockerfile and tag" },
-      { input: {"valid-image":{}, "valid-image2":{}}, expectedResult: { "Dockerfile": ["valid-image:latest", "valid-image2:latest"] }, description: "Multiple images -  default dockerfile and tags" },
-      { input: {"valid-image":{tags: ["valid-tag"]}}, expectedResult: { Dockerfile: ["valid-image:valid-tag"] }, description: "Custom tag" },
-      { input: {"valid-image":{tags:["valid-tag"], dockerFile: "dockerfile.valid"}}, expectedResult: { "dockerfile.valid": ["valid-image:valid-tag"] }, description: "Custom tag and dockerfile" },
-      { input: {"valid-image": {dockerFile: "dockerfile.valid"}}, expectedResult: { "dockerfile.valid": ["valid-image:latest"] }, description: "Default tag and custom dockerfile" }
-
+      {
+        input: { "valid-image": {} },
+        expectedResult: { Dockerfile: ["valid-image:latest"] },
+        description: "Default dockerfile and tag"
+      },
+      {
+        input: { "valid-image": {}, "valid-image2": {} },
+        expectedResult: {
+          Dockerfile: ["valid-image:latest", "valid-image2:latest"]
+        },
+        description: "Multiple images -  default dockerfile and tags"
+      },
+      {
+        input: { "valid-image": { tags: ["valid-tag"] } },
+        expectedResult: { Dockerfile: ["valid-image:valid-tag"] },
+        description: "Custom tag"
+      },
+      {
+        input: {
+          "valid-image": { tags: ["valid-tag"], dockerFile: "dockerfile.valid" }
+        },
+        expectedResult: { "dockerfile.valid": ["valid-image:valid-tag"] },
+        description: "Custom tag and dockerfile"
+      },
+      {
+        input: { "valid-image": { dockerFile: "dockerfile.valid" } },
+        expectedResult: { "dockerfile.valid": ["valid-image:latest"] },
+        description: "Default tag and custom dockerfile"
+      }
     ].forEach(testCase => {
-      it(`computes results correctly: ${testCase.description}`, () => {
+      it(`computes results correctly: ${testCase.description}`, async () => {
         expect(
-          dockerHandler.computeTagsByDockerFilesFromJson(testCase.input)
+          await dockerHandler.computeTagsByDockerFilesFromJson(testCase.input)
         ).to.deep.equal(testCase.expectedResult)
       })
     })
@@ -193,41 +237,26 @@ describe("docker", () => {
       results = []
     })
 
-    it("uses the default values if parameters are not present", async () => {
-      await dockerHandler.build()
+    it("pushes the default latest image if parameters are not present", async () => {
       await dockerHandler.push()
       expect(results).to.include(
-        `docker push ${validDockerRegistry}/validuser-validreponame:12345678`
+        `docker push ${validDockerRegistry}/validuser-validreponame:latest`
       )
     })
-
-    it("pushes latest as well if it is set", async () => {
-      await dockerHandler.build()
+    it("pushes the specified tag of target image if given", async () => {
       await dockerHandler.push({
-        imageName: validDockerImageName,
-        registryUrl: validDockerRegistry,
-        latest: true
+        images: JSON.stringify({
+          docker: {
+            "validuser-validreponame": {
+              tags: ["myTag"]
+            }
+          }
+        })
       })
+
       expect(results).to.include(
-        `docker push ${validDockerRegistry}/${validDockerImageName}:latest`
+        `docker push ${validDockerRegistry}/validuser-validreponame:myTag`
       )
-    })
-
-    it("pushes multiple times on multiple tags", async () => {
-      await dockerHandler.build()
-      await dockerHandler.push({
-        imageName: validDockerImageName,
-        registryUrl: validDockerRegistry,
-        tags: "a,b",
-        latest: true
-      })
-      expect(results)
-        .to.include(
-          `docker push ${validDockerRegistry}/${validDockerImageName}:a`
-        )
-        .and.to.include(
-          `docker push ${validDockerRegistry}/${validDockerImageName}:b`
-        )
     })
   })
 })
