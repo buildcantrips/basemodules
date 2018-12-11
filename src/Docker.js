@@ -108,7 +108,7 @@ class Docker {
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
       for (let image of imagesByDockerFiles[dockerFile]) {
         this.runCommand(
-          `docker push ${registryUrl}/${image}`,
+          `docker push ${image} ${registryUrl}/${image}`,
           `Pushing image ${registryUrl}/${image}`
         )
       }
