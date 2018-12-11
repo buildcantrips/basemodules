@@ -216,7 +216,7 @@ describe("docker", () => {
       var imageName = "image-to-tag3"
       var newTag = "new-tag"
       await dockerHandler.build({ images: imageName })
-      await dockerHandler.tag(imageName, "latest", newTag)
+      await dockerHandler.tag(`${imageName}:latest`, `${imageName}:${newTag}`)
       expect(getDockerImageList()).to.contain(`${imageName}:${newTag}`)
     })
   })
@@ -240,7 +240,7 @@ describe("docker", () => {
     it("pushes the default latest image if parameters are not present", async () => {
       await dockerHandler.push()
       expect(results).to.include(
-        `docker push validuser-validreponame:latest ${validDockerRegistry}/validuser-validreponame:latest`
+        `docker push ${validDockerRegistry}/validuser-validreponame:latest`
       )
     })
     it("pushes the specified tag of target image if given", async () => {
@@ -255,7 +255,7 @@ describe("docker", () => {
       })
 
       expect(results).to.include(
-        `docker push validuser-validreponame:myTag ${validDockerRegistry}/validuser-validreponame:myTag`
+        `docker push ${validDockerRegistry}/validuser-validreponame:myTag`
       )
     })
   })

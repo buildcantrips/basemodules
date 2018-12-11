@@ -107,19 +107,19 @@ class Docker {
 
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
       for (let image of imagesByDockerFiles[dockerFile]) {
+        this.tag(image, `${registryUrl}/${image}`)
         this.runCommand(
-          `docker push ${image} ${registryUrl}/${image}`,
+          `docker push ${registryUrl}/${image}`,
           `Pushing image ${registryUrl}/${image}`
         )
       }
     }
   }
 
-  async tag(imageToTag, oldTag, newTag, newImageName) {
-    newImageName = newImageName || imageToTag
+  async tag(imageToTag, newImageName) {
     return this.runCommand(
-      `docker tag ${imageToTag}:${oldTag} ${newImageName}:${newTag}`,
-      `Tagging image ${imageToTag}:${oldTag} as ${newImageName}:${newTag}`
+      `docker tag ${imageToTag} ${newImageName}`,
+      `Tagging image ${imageToTag} as ${newImageName}`
     )
   }
 
@@ -187,21 +187,18 @@ module.exports = {
     push: {
       parameters: [
         {
-          name: "imageName",
-          help: "If active, do not push the image to remote"
+          name: "images",
+          help:
+            "Descriptor of the result images. Ex:\
+            my-image => Building my-image:latest from Dockerfile\
+            my-image:customTag => Building my-image:customTag from Dockerfile\
+            my-image:someTag[Dockerfile.web] => Building my-image:someTag from Dockerfile.web\
+            my-image[Dockerfile.web],my-image:someTag => Building my-image from Dockerfile.web\
+                                                         and building my-image:someTag from Dockerfile"
         },
         {
           name: "registryUrl",
           help: "The target Docker Registry url"
-        },
-        {
-          name: "tags",
-          help: "Coma separated list of tags to push to"
-        },
-        {
-          name: "latest",
-          help: "Should a latest tag be pushed",
-          flag: true
         }
       ]
     }
