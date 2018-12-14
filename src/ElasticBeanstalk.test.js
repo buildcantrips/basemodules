@@ -60,7 +60,7 @@ describe("elasticBeanstalk", () => {
           messages.push(command)
         }
       }
-      await elasticBeanstalk.deploy(multiBranchPattern)
+      await elasticBeanstalk.deploy({ patternString: multiBranchPattern })
       expect(messages).to.contain(
         `init && eb deploy ${otherValidEnvironment} --timeout ${defaultTimeout}`
       )

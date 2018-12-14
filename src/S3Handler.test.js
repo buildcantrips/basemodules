@@ -17,9 +17,7 @@ describe("S3Handler", () => {
   before(async () => {
     process.env.AWS_ACCESS_KEY_ID = validAccessKeyId
     process.env.AWS_SECRET_ACCESS_KEY = validSecretAccessKey
-    s3Handler = await S3Handler({
-      s3Uri: "uri"
-    })
+    s3Handler = await S3Handler({})
   })
   beforeEach(() => {
     messages = []
@@ -31,7 +29,7 @@ describe("S3Handler", () => {
         .and.to.includes("AWS_SECRET_ACCESS_KEY")
     })
     it("fails if no mandatory parameters are given", async () => {
-      expect(S3Handler({ s3Uri: "uri" })).to.be.rejectedWith(
+      expect(S3Handler({})).to.be.rejectedWith(
         Error,
         /parameters are mandatory/
       )
@@ -41,8 +39,7 @@ describe("S3Handler", () => {
       before(async () => {
         s3Handler = await S3Handler({
           accessKeyId: "keyId",
-          secretAccessKey: "accessKey",
-          s3Uri: "uri"
+          secretAccessKey: "accessKey"
         })
         s3Handler.container = {
           run(command) {
@@ -51,15 +48,13 @@ describe("S3Handler", () => {
         }
       })
       it("lists given bucket", () => {
-        s3Handler.list(validBucketName)
+        s3Handler.list({ bucketName: validBucketName })
         expect(messages[0]).to.contain(`aws s3 ls ${validBucketName}`)
       })
     })
     describe("get", async () => {
       before(async () => {
-        s3Handler = await S3Handler({
-          s3Uri: "uri"
-        })
+        s3Handler = await S3Handler({})
         s3Handler.container = {
           run(command) {
             messages.push(command)
@@ -67,17 +62,17 @@ describe("S3Handler", () => {
         }
       })
       it("downloads file from s3 to local", () => {
-        s3Handler.get(
-          `s3://${validBucketName}/${validFileName}`,
-          `${validFolderName}/${validFileName}`
-        )
+        s3Handler.get({
+          fileUri: `s3://${validBucketName}/${validFileName}`,
+          targetPath: `${validFolderName}/${validFileName}`
+        })
         expect(messages[0]).to.contain(
           `aws s3 cp s3://${validBucketName}/${validFileName} ${validFolderName}/${validFileName}`
         )
       })
 
       it("download files to workdir", () => {
-        s3Handler.get(`s3://${validBucketName}/${validFileName}`)
+        s3Handler.get({ fileUri: `s3://${validBucketName}/${validFileName}` })
         expect(messages[0]).to.contain(
           `aws s3 cp s3://${validBucketName}/${validFileName} ./${validFileName}`
         )
@@ -85,7 +80,7 @@ describe("S3Handler", () => {
 
       it("throws error if first parameter is not an s3 uri", () => {
         expect(
-          s3Handler.get(`${validBucketName}/${validFileName}`)
+          s3Handler.get({ fileUri: `${validBucketName}/${validFileName}` })
         ).to.be.rejectedWith(Error, /must start with "s3/)
       })
     })
