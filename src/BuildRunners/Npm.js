@@ -4,7 +4,6 @@ import { Logger, ContainerProvider } from "@cantrips/core"
 
 class Npm {
   constructor({ registryUrl, authToken, userFolder }) {
-    Logger.info(authToken)
     this.authToken = authToken || process.env.NPM_AUTH_TOKEN
     if (!this.authToken) {
       throw new Error("NPM_AUTH_TOKEN is mandatory!")
