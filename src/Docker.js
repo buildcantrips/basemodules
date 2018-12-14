@@ -153,10 +153,11 @@ class Docker {
 module.exports = {
   exposed: {
     build: {
+      description: "Building a docker image",
       parameters: [
         {
           name: "images",
-          help:
+          description:
             "Descriptor of the result images. Ex:\
             my-image => Building my-image:latest from Dockerfile\
             my-image:customTag => Building my-image:customTag from Dockerfile\
@@ -166,29 +167,36 @@ module.exports = {
         },
         {
           name: "noCache",
-          help: "Using noCache option",
+          description: "Using noCache option",
           flag: true
         }
       ]
     },
     login: {
-      name: "login",
+      description: "Logging into a Docker Registry",
       parameters: [
         {
           name: "username",
-          help: "Docker registry user name"
+          description: "Docker registry user name. Environment: DOCKER_USERNAME"
         },
         {
           name: "password",
-          help: "Docker registry user password"
+          description:
+            "Docker registry user password. Environment: DOCKER_PASSWORD"
+        },
+        {
+          name: "registryUrl",
+          description:
+            "The target Docker Registry url. Environment: DOCKER_REGISTRY"
         }
       ]
     },
     push: {
+      description: "Pushing a docker image",
       parameters: [
         {
           name: "images",
-          help:
+          description:
             "Descriptor of the result images. Ex:\
             my-image => Building my-image:latest from Dockerfile\
             my-image:customTag => Building my-image:customTag from Dockerfile\
@@ -198,19 +206,16 @@ module.exports = {
         },
         {
           name: "registryUrl",
-          help: "The target Docker Registry url"
+          description:
+            "The target Docker Registry url. Environment: DOCKER_REGISTRY"
         }
       ]
     }
   },
   meta: {
     name: "docker",
-    parameters: [
-      {
-        name: "skipPush",
-        help: "If active, do not push the image to remote"
-      }
-    ],
+    description: "Building and publishing docker images",
+    parameters: [],
     type: Docker
   },
   Docker

@@ -47,16 +47,30 @@ async function wrapper(args) {
 }
 
 module.exports = {
-  exposed: ["createCredentials"],
+  exposed: {
+    createCredentials: {
+      description: "Injecting NPM credential information to the environment"
+    }
+  },
   meta: {
     name: "npm",
+    description: "Solves various NPM related tasks",
     parameters: [
       {
         name: "registryUrl",
-        help: "The url of the target registry"
+        description:
+          "The url of the target registry. Environment: NPM_REGISTRY_URL. Defaults to registry.npmjs.org/"
       },
-      { name: "authToken", help: "The token to authenticate with" },
-      { name: "userFolder", help: "Which userFolder to use" }
+      {
+        name: "authToken",
+        description:
+          "Token to authenticate to the target registry. Environment: NPM_AUTH_TOKEN. (Mandatory)"
+      },
+      {
+        name: "userFolder",
+        description:
+          "The current user's home directory. Defaults to the default HOME directory"
+      }
     ],
     type: wrapper
   },

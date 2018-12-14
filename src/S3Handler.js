@@ -25,14 +25,14 @@ class S3Handler {
     )
   }
 
-  async list(bucketName) {
+  async list({ bucketName }) {
     await this.container.run(
       `aws s3 ls ${bucketName}`,
       `Listing bucket ${bucketName}`
     )
   }
 
-  async get(fileUri, targetPath) {
+  async get({ fileUri, targetPath }) {
     if (!fileUri.startsWith("s3://")) {
       throw Error('First parameter must start with "s3://"')
     }
@@ -54,10 +54,47 @@ async function wrapper(args) {
 }
 
 module.exports = {
-  exposed: ["list", "get"],
+  exposed: {
+    list: {
+      description: "",
+      parameters: [
+        {
+          name: "bucketName",
+          description: "AWS S3 bucket name to list. (Mandatory)"
+        }
+      ]
+    },
+    get: {
+      description: "",
+      parameters: [
+        {
+          name: "fileUri",
+          description:
+            "The S3 uri of the target object to download. (Mandatory)"
+        },
+        {
+          name: "targetPath",
+          description:
+            "The local path to download the target object to. (Mandatory)"
+        }
+      ]
+    }
+  },
   meta: {
     name: "s3",
-    parameters: [],
+    description: "Accessing and manipulating S3 buckets",
+    parameters: [
+      {
+        name: "accessKeyId",
+        description:
+          "AWS AccessKeyID to authenticate. Environment: AWS_ACCESS_KEY_ID. (Mandatory)"
+      },
+      {
+        name: "secretAccessKey",
+        description:
+          "AWS SecretAccessKey to authenticate. Environment: AWS_SECRET_ACCESS_KEY. (Mandatory)"
+      }
+    ],
     type: wrapper
   },
   S3Handler: wrapper

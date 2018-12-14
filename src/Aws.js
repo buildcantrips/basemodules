@@ -39,16 +39,30 @@ class Aws {
 }
 
 module.exports = {
-  exposed: ["createCredentials"],
+  exposed: {
+    createCredentials: {
+      description: "Injecting AWS credential information to the environment"
+    }
+  },
   meta: {
     name: "aws",
+    description: "Handle common AWS tasks",
     parameters: [
       {
         name: "accessKeyId",
-        help: "Which accessKeyId to use"
+        description:
+          "AWS AccessKeyID to authenticate. Environment: AWS_ACCESS_KEY_ID. (Mandatory)"
       },
-      { name: "secretAccessKey", help: "Which secretKeyId to use" },
-      { name: "userFolder", help: "Which userFolder to use" }
+      {
+        name: "secretAccessKey",
+        description:
+          "AWS SecretAccessKey to authenticate. Environment: AWS_SECRET_ACCESS_KEY. (Mandatory)"
+      },
+      {
+        name: "userFolder",
+        description:
+          "The current user's home directory. Defaults to the default HOME directory"
+      }
     ],
     type: Aws
   },

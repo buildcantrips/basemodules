@@ -26,7 +26,7 @@ class ElasticBeanstalk {
     }, {})
   }
 
-  async deploy(patternString = undefined, timeout = 60) {
+  async deploy({ patternString = undefined, timeout = 60 }) {
     Logger.info("Starting Elastic Beanstalk deployment")
     patternString = patternString || process.env.EB_DEPLOYMENT_PATTERN_STRING
     if (!patternString) {
@@ -57,9 +57,21 @@ async function wrapper(args) {
 }
 
 module.exports = {
-  exposed: ["deploy"],
+  exposed: {
+    deploy: {
+      description: "Deploy to an ElasticBeanstalk environment",
+      parameters: [
+        {
+          name: "patternString",
+          description: "Environment: EB_DEPLOYMENT_PATTERN_STRING"
+        },
+        { name: "timeout", description: "Defaults to 60 minutes." }
+      ]
+    }
+  },
   meta: {
     name: "elb",
+    description: "For deploying apps to ElasticBeanstalk environments",
     parameters: [],
     type: wrapper
   },
