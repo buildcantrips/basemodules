@@ -1,9 +1,4 @@
-import {
-  Logger,
-  ParameterProvider,
-  ProcessUtils,
-  StringUtils
-} from "@cantrips/core"
+import { Logger, ParameterProvider, ProcessUtils, StringUtils } from "@cantrips/core"
 
 class Docker {
   constructor(location, commandRunner) {
@@ -20,13 +15,9 @@ class Docker {
   computeTagsByDockerFilesFromString(parsedImageDescriptors) {
     const resultHash = {}
     parsedImageDescriptors.forEach(imageDescriptor => {
-      const dockerFile =
-        this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/) ||
-        "Dockerfile"
-      const tag =
-        this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest"
-      const imageName =
-        this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || ""
+      const dockerFile = this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/) || "Dockerfile"
+      const tag = this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest"
+      const imageName = this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || ""
 
       if (!StringUtils.isNormalizedString(imageName)) {
         throw `Image name ${imageName} is not a valid docker image name.`
@@ -46,8 +37,7 @@ class Docker {
         throw `Image name ${imageName} is not a valid docker image name.`
       }
 
-      const dockerFile =
-        parsedImageDescriptorJson[imageName]["dockerFile"] || "Dockerfile"
+      const dockerFile = parsedImageDescriptorJson[imageName]["dockerFile"] || "Dockerfile"
 
       const tags = parsedImageDescriptorJson[imageName]["tags"] || ["latest"]
 
@@ -66,15 +56,11 @@ class Docker {
     images = images || (await this.computeDefaultImageName())
     try {
       const parsedImageDescriptors = JSON.parse(images)
-      imagesByDockerFiles = await this.computeTagsByDockerFilesFromJson(
-        parsedImageDescriptors["docker"]
-      )
+      imagesByDockerFiles = await this.computeTagsByDockerFilesFromJson(parsedImageDescriptors["docker"])
       Logger.debug("Docker - Json input format detected")
     } catch (e) {
       const parsedImageDescriptors = images.split(",")
-      imagesByDockerFiles = await this.computeTagsByDockerFilesFromString(
-        parsedImageDescriptors
-      )
+      imagesByDockerFiles = await this.computeTagsByDockerFilesFromString(parsedImageDescriptors)
       Logger.debug("Docker - String input format detected")
     }
     Logger.debug(`Detected: ${JSON.stringify(imagesByDockerFiles, null, 2)}`)
@@ -87,66 +73,44 @@ class Docker {
       const tagCommandString = imagesByDockerFiles[dockerFile].join(" -t ")
 
       this.runCommand(
-        `docker build -f ${dockerFile} ${
-          noCache ? " --no-cache" : ""
-        } -t ${tagCommandString} .`,
-        `Building docker image from dockerfile ${dockerFile} with tags ${imagesByDockerFiles[
-          dockerFile
-        ].join(" ")}`
+        `docker build -f ${dockerFile} ${noCache ? " --no-cache" : ""} -t ${tagCommandString} .`,
+        `Building docker image from dockerfile ${dockerFile} with tags ${imagesByDockerFiles[dockerFile].join(" ")}`
       )
     }
   }
 
   async push(options = {}) {
-    let {
-      images,
-      registryUrl = await this.parameterProvider.getParameter("DockerRegistry")
-    } = options
+    let { images, registryUrl = await this.parameterProvider.getParameter("DockerRegistry") } = options
 
     const imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
 
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
       for (let image of imagesByDockerFiles[dockerFile]) {
         this.tag(image, `${registryUrl}/${image}`)
-        this.runCommand(
-          `docker push ${registryUrl}/${image}`,
-          `Pushing image ${registryUrl}/${image}`
-        )
+        this.runCommand(`docker push ${registryUrl}/${image}`, `Pushing image ${registryUrl}/${image}`)
       }
     }
   }
 
   async tag(imageToTag, newImageName) {
-    return this.runCommand(
-      `docker tag ${imageToTag} ${newImageName}`,
-      `Tagging image ${imageToTag} as ${newImageName}`
-    )
+    return this.runCommand(`docker tag ${imageToTag} ${newImageName}`, `Tagging image ${imageToTag} as ${newImageName}`)
   }
 
   async login({ username, password, registryUrl } = {}) {
     username = username || process.env.DOCKER_USERNAME
     password = password || process.env.DOCKER_PASSWORD
     registryUrl = registryUrl || process.env.DOCKER_REGISTRY
-    return this.runCommand(
-      `docker login -u ${username} -p ${password} ${registryUrl}`,
-      `Logging into ${registryUrl}`
-    )
+    return this.runCommand(`docker login -u ${username} -p ${password} ${registryUrl}`, `Logging into ${registryUrl}`)
   }
 
   async computeDefaultTags() {
     return (await this.parameterProvider.getParameter("IsRelease"))
       ? [this.parameterProvider.getParameter("ReleaseVersion")]
-      : [
-          StringUtils.normalizeString(
-            await this.parameterProvider.getParameter("ShortHash")
-          )
-        ]
+      : [StringUtils.normalizeString(await this.parameterProvider.getParameter("ShortHash"))]
   }
 
   async computeDefaultImageName() {
-    return StringUtils.normalizeString(
-      await this.parameterProvider.getParameter("ProjectName")
-    )
+    return StringUtils.normalizeString(await this.parameterProvider.getParameter("ProjectName"))
   }
 }
 
@@ -181,13 +145,11 @@ module.exports = {
         },
         {
           name: "password",
-          description:
-            "Docker registry user password. Environment: DOCKER_PASSWORD"
+          description: "Docker registry user password. Environment: DOCKER_PASSWORD"
         },
         {
           name: "registryUrl",
-          description:
-            "The target Docker Registry url. Environment: DOCKER_REGISTRY"
+          description: "The target Docker Registry url. Environment: DOCKER_REGISTRY"
         }
       ]
     },
@@ -198,16 +160,14 @@ module.exports = {
           name: "images",
           description:
             "Descriptor of the result images. Ex:\
-            my-image => Building my-image:latest from Dockerfile\
-            my-image:customTag => Building my-image:customTag from Dockerfile\
-            my-image:someTag[Dockerfile.web] => Building my-image:someTag from Dockerfile.web\
-            my-image[Dockerfile.web],my-image:someTag => Building my-image from Dockerfile.web\
-                                                         and building my-image:someTag from Dockerfile"
+            my-image => Pushing my-image:latest\
+            my-image:customTag => Pushing my-image:customTag\
+            my-image:someTag[Dockerfile.web] => Pushing my-image:someTag\
+            my-image,my-image:someTag => Pushing my-image and pushing my-image:someTag"
         },
         {
           name: "registryUrl",
-          description:
-            "The target Docker Registry url. Environment: DOCKER_REGISTRY"
+          description: "The target Docker Registry url. Environment: DOCKER_REGISTRY"
         }
       ]
     }
