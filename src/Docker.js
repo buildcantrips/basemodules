@@ -67,13 +67,16 @@ class Docker {
     return imagesByDockerFiles
   }
 
-  async build({ images, noCache = false } = {}) {
+  async build({ images, buildArgs = "", noCache = false } = {}) {
     let imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
+    if (buildArgs) {
+      buildArgs = buildArgs.split(",").map(arg => ` --buildArg ${arg}`)
+    }
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
       const tagCommandString = imagesByDockerFiles[dockerFile].join(" -t ")
 
       this.runCommand(
-        `docker build -f ${dockerFile} ${noCache ? " --no-cache" : ""} -t ${tagCommandString} .`,
+        `docker build -f ${dockerFile} ${noCache ? " --no-cache" : ""} -t ${tagCommandString} ${buildArgs} .`,
         `Building docker image from dockerfile ${dockerFile} with tags ${imagesByDockerFiles[dockerFile].join(" ")}`
       )
     }
@@ -128,6 +131,11 @@ module.exports = {
             my-image:someTag[Dockerfile.web] => Building my-image:someTag from Dockerfile.web\
             my-image[Dockerfile.web],my-image:someTag => Building my-image from Dockerfile.web\
                                                          and building my-image:someTag from Dockerfile"
+        },
+        {
+          name: "buildArgs",
+          description:
+            "Coma separated key value pairs are passed as build args during build. Eg.: myvar1=value1,myvar2=value2"
         },
         {
           name: "noCache",
