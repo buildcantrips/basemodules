@@ -70,7 +70,7 @@ class Docker {
   async build({ images, buildArgs = "", noCache = false } = {}) {
     let imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
     if (buildArgs) {
-      buildArgs = buildArgs.split(",").map(arg => ` --buildArg ${arg}`)
+      buildArgs = buildArgs.split(",").map(arg => ` --build-arg ${arg}`)
     }
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
       const tagCommandString = imagesByDockerFiles[dockerFile].join(" -t ")
