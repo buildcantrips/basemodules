@@ -20,6 +20,14 @@ jobs:
       - run:
           name: Test
           command: yarn run test:ci
+      - store_test_results:
+          path: test/junit
+      - store_artifacts:
+          path: test
+          prefix: tests
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
       - run:
           name: Babel build
           command: yarn run babel:build

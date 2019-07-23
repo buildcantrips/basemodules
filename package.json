@@ -27,38 +27,39 @@
     "all": true
   },
   "dependencies": {
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "7.2.0",
+    "@babel/register": "^7.5.5",
+    "@babel/runtime": "7.5.5",
     "@cantrips/core": "0.13.20"
   },
   "scripts": {
-    "test": "mocha --compilers js:@babel/register --timeout 10000 --recursive src",
-    "test:ci": "nyc mocha --compilers js:@babel/register --timeout 20000 --recursive src",
+    "test": "mocha --require @babel/register --timeout 10000 --recursive src",
+    "test:cov": "nyc mocha --require @babel/register --timeout 10000 --recursive src",
+    "test:ci": "nyc --reporter=text --reporter=lcovonly mocha --reporter mocha-junit-reporter --reporter-options mochaFile=test/junit/test-results.xml --require @babel/register --timeout 20000 --recursive src",
     "lint": "eslint src",
     "babel:build": "babel src -d lib --ignore node_modules,src/modules",
     "babel:watch": "babel src -d lib -w --ignore node_modules,src/modules"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.0.0",
-    "@babel/node": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-transform-runtime": "^7.1.0",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
+    "babel-eslint": "^10.0.2",
     "babel-plugin-dynamic-import-node-babel-7": "^2.0.7",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^5.8.0",
-    "eslint-config-standard": "^12.0.0",
+    "eslint": "^6.1.0",
+    "eslint-config-standard": "^13.0.1",
     "eslint-plugin-chai-friendly": "^0.4.1",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^8.0.0",
-    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
-    "mocha": "^5.2.0",
-    "nyc": "^13.1.0",
-    "tmp": "0.0.33"
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
+    "tmp": "0.1.0"
   }
 }
