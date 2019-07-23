@@ -32,9 +32,9 @@
     "@cantrips/core": "0.13.20"
   },
   "scripts": {
-    "test": "mocha --require @babel/register --timeout 10000 --recursive src",
-    "test:cov": "nyc mocha --require @babel/register --timeout 10000 --recursive src",
-    "test:ci": "nyc --reporter=text --reporter=lcovonly mocha --reporter mocha-junit-reporter --reporter-options mochaFile=test/junit/test-results.xml --require @babel/register --timeout 20000 --recursive src",
+    "test": "mocha --require mocha.env.js --require @babel/register --timeout 10000 --recursive src",
+    "test:cov": "nyc mocha --require mocha.env.js --require @babel/register --timeout 10000 --recursive src",
+    "test:ci": "nyc --reporter=text --reporter=lcovonly mocha --require mocha.env.js --reporter mocha-junit-reporter --reporter-options mochaFile=test/junit/test-results.xml --require @babel/register --timeout 20000 --recursive src",
     "lint": "eslint src",
     "babel:build": "babel src -d lib --ignore node_modules,src/modules",
     "babel:watch": "babel src -d lib -w --ignore node_modules,src/modules"
