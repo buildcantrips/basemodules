@@ -3,91 +3,91 @@ import {
   ParameterProvider,
   ProcessUtils,
   StringUtils,
-} from "@cantrips/core";
+} from "@cantrips/core"
 
 class Docker {
   constructor(location, commandRunner) {
-    this.location = location;
-    this.runCommand = commandRunner || ProcessUtils.runCommandSync;
-    this.parameterProvider = new ParameterProvider();
+    this.location = location
+    this.runCommand = commandRunner || ProcessUtils.runCommandSync
+    this.parameterProvider = new ParameterProvider()
   }
 
   getFirstMatchOrDefault(text, regex) {
-    const result = text.match(regex);
-    return result ? result[1] : null;
+    const result = text.match(regex)
+    return result ? result[1] : null
   }
 
   computeTagsByDockerFilesFromString(parsedImageDescriptors) {
-    const resultHash = {};
+    const resultHash = {}
     parsedImageDescriptors.forEach((imageDescriptor) => {
       const dockerFile =
         this.getFirstMatchOrDefault(imageDescriptor, /.*\[(.*)\]/) ||
-        "Dockerfile";
+        "Dockerfile"
       const tag =
-        this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest";
+        this.getFirstMatchOrDefault(imageDescriptor, /:([^[\s]*)/) || "latest"
       const imageName =
-        this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || "";
+        this.getFirstMatchOrDefault(imageDescriptor, /^([^:^[.]+)/) || ""
 
       if (!StringUtils.isNormalizedString(imageName)) {
-        throw `Image name ${imageName} is not a valid docker image name.`;
+        throw `Image name ${imageName} is not a valid docker image name.`
       }
 
       if (!resultHash[dockerFile]) {
-        resultHash[dockerFile] = [];
+        resultHash[dockerFile] = []
       }
-      resultHash[dockerFile].push(`${imageName}:${tag}`);
-    });
-    return resultHash;
+      resultHash[dockerFile].push(`${imageName}:${tag}`)
+    })
+    return resultHash
   }
   async computeTagsByDockerFilesFromJson(parsedImageDescriptorJson) {
-    const resultHash = {};
+    const resultHash = {}
     Object.keys(parsedImageDescriptorJson).forEach(async (imageName) => {
       if (!StringUtils.isNormalizedString(imageName)) {
-        throw `Image name ${imageName} is not a valid docker image name.`;
+        throw `Image name ${imageName} is not a valid docker image name.`
       }
 
       const dockerFile =
-        parsedImageDescriptorJson[imageName]["dockerFile"] || "Dockerfile";
+        parsedImageDescriptorJson[imageName]["dockerFile"] || "Dockerfile"
 
-      const tags = parsedImageDescriptorJson[imageName]["tags"] || ["latest"];
+      const tags = parsedImageDescriptorJson[imageName]["tags"] || ["latest"]
 
       if (!resultHash[dockerFile]) {
-        resultHash[dockerFile] = [];
+        resultHash[dockerFile] = []
       }
       tags.forEach((tag) => {
-        resultHash[dockerFile].push(`${imageName}:${tag}`);
-      });
-    });
-    return resultHash;
+        resultHash[dockerFile].push(`${imageName}:${tag}`)
+      })
+    })
+    return resultHash
   }
 
   async computeImagesByDockerFiles(images) {
-    let imagesByDockerFiles;
-    images = images || (await this.computeDefaultImageName());
+    let imagesByDockerFiles
+    images = images || (await this.computeDefaultImageName())
     try {
-      const parsedImageDescriptors = JSON.parse(images);
+      const parsedImageDescriptors = JSON.parse(images)
       imagesByDockerFiles = await this.computeTagsByDockerFilesFromJson(
         parsedImageDescriptors["docker"]
-      );
-      Logger.debug("Docker - Json input format detected");
+      )
+      Logger.debug("Docker - Json input format detected")
     } catch (e) {
-      const parsedImageDescriptors = images.split(",");
+      const parsedImageDescriptors = images.split(",")
       imagesByDockerFiles = await this.computeTagsByDockerFilesFromString(
         parsedImageDescriptors
-      );
-      Logger.debug("Docker - String input format detected");
+      )
+      Logger.debug("Docker - String input format detected")
     }
-    Logger.debug(`Detected: ${JSON.stringify(imagesByDockerFiles, null, 2)}`);
-    return imagesByDockerFiles;
+    Logger.debug(`Detected: ${JSON.stringify(imagesByDockerFiles, null, 2)}`)
+    return imagesByDockerFiles
   }
 
   async build({ images, buildArgs = "", noCache = false, pull = true } = {}) {
-    let imagesByDockerFiles = await this.computeImagesByDockerFiles(images);
+    let imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
     if (buildArgs) {
-      buildArgs = buildArgs.split(",").map((arg) => ` --build-arg ${arg}`);
+      buildArgs = buildArgs.split(",").map((arg) => ` --build-arg ${arg}`)
     }
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
-      const tagCommandString = imagesByDockerFiles[dockerFile].join(" -t ");
+      const tagCommandString = imagesByDockerFiles[dockerFile].join(" -t ")
 
       this.runCommand(
         `docker build -f ${dockerFile} ${noCache ? " --no-cache" : ""} ${
@@ -96,7 +96,7 @@ class Docker {
         `Building docker image from dockerfile ${dockerFile} with tags ${imagesByDockerFiles[
           dockerFile
         ].join(" ")}`
-      );
+      )
     }
   }
 
@@ -104,17 +104,17 @@ class Docker {
     let {
       images,
       registryUrl = await this.parameterProvider.getParameter("DockerRegistry"),
-    } = options;
+    } = options
 
-    const imagesByDockerFiles = await this.computeImagesByDockerFiles(images);
+    const imagesByDockerFiles = await this.computeImagesByDockerFiles(images)
 
     for (let dockerFile of Object.keys(imagesByDockerFiles)) {
       for (let image of imagesByDockerFiles[dockerFile]) {
-        this.tag(image, `${registryUrl}/${image}`);
+        this.tag(image, `${registryUrl}/${image}`)
         this.runCommand(
           `docker push ${registryUrl}/${image}`,
           `Pushing image ${registryUrl}/${image}`
-        );
+        )
       }
     }
   }
@@ -123,17 +123,17 @@ class Docker {
     return this.runCommand(
       `docker tag ${imageToTag} ${newImageName}`,
       `Tagging image ${imageToTag} as ${newImageName}`
-    );
+    )
   }
 
   async login({ username, password, registryUrl } = {}) {
-    username = username || process.env.DOCKER_USERNAME;
-    password = password || process.env.DOCKER_PASSWORD;
-    registryUrl = registryUrl || process.env.DOCKER_REGISTRY;
+    username = username || process.env.DOCKER_USERNAME
+    password = password || process.env.DOCKER_PASSWORD
+    registryUrl = registryUrl || process.env.DOCKER_REGISTRY
     return this.runCommand(
       `docker login -u ${username} -p ${password} ${registryUrl}`,
       `Logging into ${registryUrl}`
-    );
+    )
   }
 
   async computeDefaultTags() {
@@ -143,13 +143,13 @@ class Docker {
           StringUtils.normalizeString(
             await this.parameterProvider.getParameter("ShortHash")
           ),
-        ];
+        ]
   }
 
   async computeDefaultImageName() {
     return StringUtils.normalizeString(
       await this.parameterProvider.getParameter("ProjectName")
-    );
+    )
   }
 }
 
@@ -227,4 +227,4 @@ module.exports = {
     type: Docker,
   },
   Docker,
-};
+}
